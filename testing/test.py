@@ -150,5 +150,5 @@ def printPlayback():
           loopCount += 1
       
 
-acceptInputs()
+printPlayback()
   
