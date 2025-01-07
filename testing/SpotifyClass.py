@@ -43,7 +43,7 @@ class SpotifyUser:
         return 'Not Playing'
       elif(status == 401):
           accessToken = self.getAccessToken()
-          return self.getPlayback(accessToken)
+          return self.updatePlayback()
       else:
           return 'Error ' + str(r.status_code)
 
