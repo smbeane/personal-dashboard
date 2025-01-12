@@ -48,7 +48,8 @@ class SpotifyUser:
           return 'Error ' + str(r.status_code)
 
   def alterPlayback(self, alteration_type):
-    url = 'https://api.spotify.com/v1/me/player/' + alteration_type + '?device_id=' + self.device
+    url = 'https://api.spotify.com/v1/me/player/' + alteration_type + '?device_id=7628e1f7d6a78f8e6f387f8db2b45f73ec6a3ae9'
+
     head = {'Authorization': 'Bearer ' + self.accessToken, 'Content-Type': 'application/json'}
 
     if(alteration_type == 'play' or alteration_type == 'pause'):

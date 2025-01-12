@@ -77,7 +77,6 @@ class SpotifyDisplay(SampleBase):
         else: 
           todays_weather = "thunder"
 
-        todays_weather = "sun"
         while True:
             canvas = self.matrix.CreateFrameCanvas()
             self.setImage(0, 0, "/home/smbeane5235/spotify/images/Icons/" + todays_weather + ".png", canvas)
