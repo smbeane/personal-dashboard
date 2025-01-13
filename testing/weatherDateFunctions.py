@@ -76,9 +76,9 @@ def getWeatherJSON(latitude, longitude):
   try: 
     if(weather["error"] == True):
       return "Weather API Error"
-    else: return weather.json()
+    else: return weather
   except KeyError:
-    return weather.json()
+    return weather
   
 #returns:
 # dayTime: string = day and time in format "Mon 00:00 AM"

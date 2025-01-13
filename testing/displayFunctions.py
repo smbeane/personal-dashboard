@@ -10,7 +10,8 @@ def setURLImage(canvas, albumCover, x_length, y_length, x_start, y_start):
   image = image.resize((24, 24))
 
   setImage(canvas, image, 24, 24, 2, 4)  
-    
+  
+  return image
 def setImage(canvas, image, length_x, length_y, start_x, start_y):
   if(image.mode != "RGB"):
     image = image.convert("RGB")
@@ -19,7 +20,7 @@ def setImage(canvas, image, length_x, length_y, start_x, start_y):
 
   for y in range(0, length_y):
     for x in range(0, length_x):
-      color = allpixels[y * length_y + x]
+      color = allpixels[y * length_x + x]
       canvas.SetPixel(x + start_x, y + start_y, color[0], color[2], color[1]) 
   
 def setBubbles(canvas, bubblesFilled ):
@@ -39,7 +40,8 @@ def setBubbles(canvas, bubblesFilled ):
               
 def setText(canvas, text, start_x, start_y, max_chars, r_on, g_on, b_on):
   char_count = 0
-  text.lower()
+  text = text.lower()
+  
 
   for char in text:
     if char not in letters_temp:
@@ -53,8 +55,8 @@ def setText(canvas, text, start_x, start_y, max_chars, r_on, g_on, b_on):
         else:
           r, g, b = 0, 0, 0
         canvas.SetPixel(start_x + x + char_count * 4, start_y + y, r, b, g)
-    chat_count += 1
+    char_count += 1
 
 def setDivider(canvas, start_x, start_y, length, r, g, b):
         for y in range(start_y, start_y + length):
-          canvas.SetPixel(start_x, start_y + y, r, b, g)
+          canvas.SetPixel(start_x, y, r, b, g)

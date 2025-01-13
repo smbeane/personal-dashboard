@@ -37,13 +37,19 @@ class SpotifyUser:
       r = requests.get(url = url, headers = head)
       status = r.status_code
       
+      #good request
       if(status == 200):
           self.playbackState = r.json()
+          self.device = self.playbackState['device']['id']
+      #no devices active
       elif(status == 204):
-        self.playbackState = 'Not Playing'
+          self.playbackState = 'Not Playing'
+          self.device = 0
+      #need a new access token
       elif(status == 401):
           self.accessToken = self.getAccessToken()
           self.updatePlayback()
+      #other errors and ??
       else:
           self.playbackState = 'Error ' + str(r.status_code)
 
