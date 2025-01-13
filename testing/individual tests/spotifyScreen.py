@@ -54,10 +54,7 @@ def buttonRelease(channel):
         
     else:
         print("??? Released")
-def buttonPress(channel):
-    if(channel == pausePin):
-        print("Pause Pressed")
-        pressTime = datetime.now()
+
 def destroy():
 	GPIO.cleanup()
 
@@ -75,7 +72,7 @@ class SpotifyDisplay(SampleBase):
         canvas = self.matrix.CreateFrameCanvas()
        
         lastPressed = 0
-       
+      
         
         GPIO.add_event_detect(backPin, GPIO.RISING, callback=buttonRelease, bouncetime=200)
         GPIO.add_event_detect(nextPin, GPIO.RISING, callback=buttonRelease, bouncetime=200)
@@ -86,8 +83,8 @@ class SpotifyDisplay(SampleBase):
             if user.device == 0:
                 print("No Device Playing")
                 canvas.Fill(0, 0, 0)
-                self.setText("no devices on", 7, 13, 16, canvas);
-                canvas = self.matrix.SwapOnVSync(canvas);
+                self.setText("no devices on", 7, 13, 16, canvas)
+                canvas = self.matrix.SwapOnVSync(canvas)
                 
                 time.sleep(5)
                 print("Checking for Device Update")
@@ -97,7 +94,7 @@ class SpotifyDisplay(SampleBase):
                 else: 
                     user.device = 0
                 print("Device Updated")
-                continue;
+                continue
 
             '''if GPIO.input(backPin) == 0:
                 print("Back Pressed")
@@ -168,7 +165,7 @@ class SpotifyDisplay(SampleBase):
                 if len(currentArtist) > 12:
                     currentArtist = currentArtist[1:] + currentArtist[0]
                 
-                canvas = self.matrix.SwapOnVSync(canvas);
+                canvas = self.matrix.SwapOnVSync(canvas)
                 print("Display Updated")
                 
             loopCount += 1
@@ -176,7 +173,7 @@ class SpotifyDisplay(SampleBase):
     
     
     def setImage(self, albumCover, canvas):
-        urllib.request.urlretrieve(albumCover, "/home/smbeane5235/spotify/testing/albumCover.png");
+        urllib.request.urlretrieve(albumCover, "/home/smbeane5235/spotify/testing/albumCover.png")
         image = Image.open("/home/smbeane5235/spotify/testing/albumCover.png")
         image = image.resize((24,24))
     

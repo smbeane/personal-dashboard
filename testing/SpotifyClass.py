@@ -8,7 +8,7 @@ class SpotifyUser:
     self.clientSecret = client_secret
     self.accessToken = self.getAccessToken()
 
-    self.playbackState = self.updatePlayback()
+    self.updatePlayback()
 
     if(self.playbackState == 'Not Playing'):
        self.device = 0
@@ -38,18 +38,17 @@ class SpotifyUser:
       status = r.status_code
       
       if(status == 200):
-          return r.json()
+          self.playbackState = r.json()
       elif(status == 204):
-        return 'Not Playing'
+        self.playbackState = 'Not Playing'
       elif(status == 401):
-          accessToken = self.getAccessToken()
-          return self.updatePlayback()
+          self.accessToken = self.getAccessToken()
+          self.updatePlayback()
       else:
-          return 'Error ' + str(r.status_code)
+          self.playbackState = 'Error ' + str(r.status_code)
 
   def alterPlayback(self, alteration_type):
-    url = 'https://api.spotify.com/v1/me/player/' + alteration_type + '?device_id=7628e1f7d6a78f8e6f387f8db2b45f73ec6a3ae9'
-
+    url = 'https://api.spotify.com/v1/me/player/' + alteration_type + '?device_id=' + self.device
     head = {'Authorization': 'Bearer ' + self.accessToken, 'Content-Type': 'application/json'}
 
     if(alteration_type == 'play' or alteration_type == 'pause'):

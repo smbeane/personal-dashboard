@@ -7,7 +7,6 @@ import time
 from datetime import datetime
 from PIL import Image
 
-
 class SpotifyDisplay(SampleBase):
     def __init___(self, *args, **kwargs):
         super(SpotifyDisplay, self).__init__(*args, **kwargs)

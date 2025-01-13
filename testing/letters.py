@@ -345,6 +345,3 @@ letters_temp = {
                 [1, 1, 1]
         ]
 }
-
-# Convert to JSON
-letters = json.dumps(letters_temp, indent=4)
