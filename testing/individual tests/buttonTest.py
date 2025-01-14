@@ -1,5 +1,5 @@
 import RPi.GPIO as GPIO
-from SpotifyClass import SpotifyUser
+from testing.helpers.SpotifyClass import SpotifyUser
 
 backPin = 18
 pausePin = 22

@@ -1,11 +1,16 @@
 import requests
 import base64
 
+REFRESH_TOKEN = "AQAr38rlNlnrhb-KftJwfNyu5zLukmj_WidoIswV-lg44-wKgeogwcAn1ZclmTKco_1o9nkBX1BGvC949nioUuJ9LMv7WhzfL1DyKEhxl-tYN1r6weusLY3rV5qRRd8H2ik"
+CLIENT_ID = "1d63c5cfdfd24410b1630dfb6a6d0e48"
+CLIENT_SECRET = "d316ab44da0d48f8aa238608bae2cd38"
+
+
 class SpotifyUser:
-  def __init__(self, refresh_token, client_id, client_secret):
-    self.refreshToken = refresh_token
-    self.clientId = client_id
-    self.clientSecret = client_secret
+  def __init__(self):
+    self.refreshToken = REFRESH_TOKEN
+    self.clientId = CLIENT_ID
+    self.clientSecret = CLIENT_SECRET
     self.accessToken = self.getAccessToken()
 
     self.updatePlayback()

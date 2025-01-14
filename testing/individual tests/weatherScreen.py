@@ -1,6 +1,6 @@
 from rgbmatrix import RGBMatrix, RGBMatrixOptions
 from samplebase import SampleBase
-from letters import letters_temp
+from testing.helpers.letters import letters_temp
 
 import requests
 import time

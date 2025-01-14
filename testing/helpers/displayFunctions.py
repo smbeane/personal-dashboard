@@ -1,6 +1,6 @@
 import urllib
 from PIL import Image
-from letters import letters_temp
+from testing.helpers.letters import letters_temp
 
 def setURLImage(canvas, albumCover, x_length, y_length, x_start, y_start):
   dirPath = "/home/smbeane5235/spotify/testing/albumCover.png"

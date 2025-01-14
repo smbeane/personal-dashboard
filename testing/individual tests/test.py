@@ -1,5 +1,5 @@
-from SpotifyClass import SpotifyUser
-from letters import letters_temp
+from testing.helpers.SpotifyClass import SpotifyUser
+from testing.helpers.letters import letters_temp
 
 import time
 import os
