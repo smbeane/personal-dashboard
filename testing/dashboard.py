@@ -68,11 +68,11 @@ class Dashboard(SampleBase):
         time.sleep(0.1)
         sleepCounter += 1  
     
-
   def spotifyScreen(self):
     loopCount = 0
     if self.user == None:
       self.user = SpotifyUser()
+    
     while self.keepRunning:
       #checks for matrix update every second
       if loopCount % 30 == 0:
@@ -80,8 +80,6 @@ class Dashboard(SampleBase):
         self.user.updatePlayback()
       
       if loopCount % 10 == 0:
-
-        #updates the matrix every five seconds if not playing
         if (self.user.device == 0 or self.user.playbackState == "Not Playing"):
           print("No device playing")
           self.canvas.Fill(0, 0, 0)
@@ -102,7 +100,7 @@ class Dashboard(SampleBase):
           else:  
             self.canvas.Fill(0, 0, 0)
             song_progress = self.user.playbackState["progress_ms"]
-            bubblesFilled = int(song_progress / song_duration * 99)
+            bubblesFilled = int(song_progress / song_duration * 33)
             if len(currentSong) > 11:
               currentSong = currentSong[1:] + currentSong[0]
 
@@ -123,7 +121,6 @@ class Dashboard(SampleBase):
         loopCount = 0
       else: 
         loopCount += 1
-
 
   def pagesScreen(self):
     while self.keepRunning:
@@ -247,12 +244,11 @@ class Dashboard(SampleBase):
     else:
       print("??? Pressed")
       
-  
-
-
 if __name__ == "__main__":
-  dashboard = Dashboard()
-  if(not dashboard.process()):
-    dashboard.print_help()
-  
+  try:
+    dashboard = Dashboard()
+    if(not dashboard.process()):
+      dashboard.print_help()
+  except KeyboardInterrupt:
+    dashboard.destroy()
 

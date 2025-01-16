@@ -9,7 +9,7 @@ def setURLImage(canvas, albumCover, x_length, y_length, x_start, y_start):
   image = Image.open(dirPath)
   image = image.resize((24, 24))
 
-  setImage(canvas, image, 24, 24, 2, 4)  
+  setImage(canvas, image, x_length, y_length, x_start, y_start)  
   
   return image
 def setImage(canvas, image, length_x, length_y, start_x, start_y):
@@ -26,17 +26,23 @@ def setImage(canvas, image, length_x, length_y, start_x, start_y):
 def setBubbles(canvas, bubblesFilled ):
   bubbleCount = 0
 
-  for x in range(0, 35):
-    for y in range(0, 5):
-      #Border for duration bubbles
-      if (y == 0 or y == 4 or x == 0 or x == 34):
-        canvas.SetPixel(x + 27, y + 21, 255, 255, 255)
-      else: 
-        if(bubbleCount < bubblesFilled):
-          canvas.SetPixel(x + 27, y + 21, 255, 255, 255)
-          bubbleCount += 1
-        else: 
-          canvas.SetPixel(x + 27, y + 21, 0, 0, 0)
+  for x in range(27, 62):
+    canvas.SetPixel(x, 21, 255, 255, 255)
+    canvas.SetPixel(x, 25, 255, 255, 255)  
+
+    if (x == 0 or x == 34):
+      canvas.SetPixel(x, 22, 255, 255, 255)      
+      canvas.SetPixel(x, 23, 255, 255, 255)
+      canvas.SetPixel(x, 24, 255, 255, 255)
+    elif bubbleCount < bubblesFilled: 
+      canvas.SetPixel(x, 22, 255, 255, 255)
+      canvas.SetPixel(x, 23, 255, 255, 255)
+      canvas.SetPixel(x, 24, 255, 255, 255)
+      bubbleCount += 1
+    else: 
+      canvas.SetPixel(x, 22, 0, 0, 0)
+      canvas.SetPixel(x, 23, 0, 0, 0)
+      canvas.SetPixel(x, 24, 0, 0, 0)
               
 def setText(canvas, text, start_x, start_y, max_chars, r_on, g_on, b_on):
   char_count = 0
