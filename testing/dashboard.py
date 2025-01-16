@@ -23,12 +23,12 @@ class Dashboard(SampleBase):
     super(Dashboard, self).__init__(*args, **kwargs)
     self.currMode = "Home"
     self.lastMode = "Home"
-    self.user = SpotifyUser()
+    self.user = None
     self.pressTime = 0
     self.previousPlayback = {}
     self.selection = -1
     self.keepRunning = True
-    self.canvas = self.matrix.CreateFrameCanvas()   
+    self.canvas = None
    
   def homeScreen(self):
     while self.keepRunning:
@@ -38,13 +38,11 @@ class Dashboard(SampleBase):
       setText(self.canvas, dayTime.lower(), 0, 0, 16, 255, 255, 255)
       setText(self.canvas, date.lower(), 0, 6, 16, 255, 255, 255)
 
-      self.canvas = self.matrix.SwapOnVSync(self.canvas)
-
       sleepCounter = 0
-      if(self.keepRunning and sleepCounter < (60 - int(seconds)) * 10):
+      self.canvas = self.matrix.SwapOnVSync(self.canvas)
+      while(self.keepRunning and sleepCounter < (60 - int(seconds)) * 10):
         time.sleep(0.1)
-        sleepCount += 1
-    
+        sleepCounter += 1
 
   def weatherScreen(self):
     while self.keepRunning:  
@@ -66,30 +64,30 @@ class Dashboard(SampleBase):
       self.canvas = self.matrix.SwapOnVSync(self.canvas)
 
       sleepCounter = 0
-      if(self.keepRunning and sleepCounter < 18000):
+      while(self.keepRunning and sleepCounter < 18000):
         time.sleep(0.1)
-        sleepCount += 1  
+        sleepCounter += 1  
     
 
   def spotifyScreen(self):
     loopCount = 0
-    showsDevice = False
-
+    if self.user == None:
+      self.user = SpotifyUser()
     while self.keepRunning:
       #checks for matrix update every second
+      if loopCount % 30 == 0:
+        print("Update Spotify Playback") 
+        self.user.updatePlayback()
+      
       if loopCount % 10 == 0:
-        print("Update Matrix")
 
         #updates the matrix every five seconds if not playing
-        if (self.user.device == 0 or self.user.playbackState == "Not Playing") and showsDevice:
-          showsDevice = False
+        if (self.user.device == 0 or self.user.playbackState == "Not Playing"):
           print("No device playing")
           self.canvas.Fill(0, 0, 0)
           setText(self.canvas, "no devices on", 7, 13, 16, 255, 255, 255)
           self.canvas = self.matrix.SwapOnVSync(self.canvas)
         else:
-          showsDevice = True
-
           #if its the first time through or song has changed
           if not self.previousPlayback or self.previousPlayback["item"]["name"] != self.user.playbackState["item"]["name"]: 
             self.canvas.Fill(0, 0, 0)
@@ -102,6 +100,7 @@ class Dashboard(SampleBase):
             image = setURLImage(self.canvas, albumCover, 24, 24, 2, 4)
           
           else:  
+            self.canvas.Fill(0, 0, 0)
             song_progress = self.user.playbackState["progress_ms"]
             bubblesFilled = int(song_progress / song_duration * 99)
             if len(currentSong) > 11:
@@ -118,8 +117,6 @@ class Dashboard(SampleBase):
           self.canvas = self.matrix.SwapOnVSync(self.canvas) 
 
       #updates playback every 3 seconds
-      if loopCount % 30 == 0:
-        print("Update Spotify Playback") 
       
       time.sleep(0.1)
       if loopCount == 150:
@@ -144,33 +141,34 @@ class Dashboard(SampleBase):
         time.sleep(0.1)
 
   def run(self):
-
+    self.canvas = self.matrix.CreateFrameCanvas()
     self.setupGPIO()
     while True:
+      print(self.currMode)
       self.lastMode = self.currMode
 
-      if self.mode == "Home":
+      if self.currMode == "Home":
         print("Mode == Home")
         self.selection = 0
 
         self.homeScreen()
           
-      elif self.mode == "Weather":
+      elif self.currMode == "Weather":
         print("Mode == Weather")
         self.selection = 1
         
         self.weatherScreen()
       
-      elif self.mode == "Spotify":
+      elif self.currMode == "Spotify":
         print("Mode == Spotify")
         self.selection = 2
 
         self.spotifyScreen()
 
-      elif self.mode == "Pages":
+      elif self.currMode == "Pages":
         print("Mode == Pages")
 
-        self.pageScreen()
+        self.pagesScreen()
 
       else:
         print("Mode == ???")
@@ -201,23 +199,23 @@ class Dashboard(SampleBase):
     #Back button was released
     if(channel == BACK_PIN):
 
-      if(self.mode == "Spotify"): 
+      if(self.currMode == "Spotify"): 
         print("Back Pressed")
         self.user.alterPlayback("previous")
         self.user.updatePlayback()
 
-      elif(self.mode == "Pages"):
+      elif(self.currMode == "Pages"):
         self.selection = self.selection - 1 if self.selection != 0 else 2 
         self.keepRunning = False
     
     #Next button was released 
     elif(channel == NEXT_PIN): 
-      if(self.mode == "Spotify"):
+      if(self.currMode == "Spotify"):
         print("Next Pressed")
         self.user.alterPlayback("next")
         self.user.updatePlayback()
 
-      elif(self.mode == "Pages"):
+      elif(self.currMode == "Pages"):
         self.selection = self.selection + 1 if self.selection != 2 else 0
         self.keepRunning = False
     
@@ -231,18 +229,18 @@ class Dashboard(SampleBase):
       holdTime = releaseTime - self.pressTime
       
       #button was held, opens the pages tab
-      if(holdTime >= timedelta(seconds=0.75) and self.mode != "Pages"):
-        self.mode = "Pages"
+      if(holdTime >= timedelta(seconds=0.75) and self.currMode != "Pages"):
+        self.currMode = "Pages"
         self.keepRunning = False
 
-      elif(self.mode == "Spotify"):
+      elif(self.currMode == "Spotify"):
         if(self.user.playbackState["is_playing"]):
           self.user.alterPlayback("pause")
         else:
           self.user.alterPlayback("play")
         self.user.updatePlayback()
-      elif(self.mode == "Pages"):
-        self.mode = DASHBOARD_STATES[self.selection]
+      elif(self.currMode == "Pages"):
+        self.currMode = DASHBOARD_STATES[self.selection]
         self.keepRunning = False
     
     #???
