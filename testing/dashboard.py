@@ -48,7 +48,7 @@ class Dashboard(SampleBase):
     while self.keepRunning:  
       todays_weather, low_temps, high_temps = getWeatherVals(LAT, LONG)
       days = getDays()
-      image = Image.open("/home/smbeane5235/spotify/images/Icons/" + todays_weather + ".png")
+      image = Image.open("/home/smbeane5235/spotify/extras/icons/" + todays_weather + ".png")
 
       self.canvas.Fill(0, 0, 0)
       setImage(self.canvas, image, 24, 18, 0, 0)

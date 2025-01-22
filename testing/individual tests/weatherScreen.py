@@ -78,7 +78,7 @@ class SpotifyDisplay(SampleBase):
 
         while True:
             canvas = self.matrix.CreateFrameCanvas()
-            self.setImage(0, 0, "/home/smbeane5235/spotify/images/Icons/" + todays_weather + ".png", canvas)
+            self.setImage(0, 0, "/home/smbeane5235/spotify/extras/icons/" + todays_weather + ".png", canvas)
             
             self.setText("today", 2, 19, 5, canvas)
             self.setText("|".join([str(int(low_temps[0])), str(int(high_temps[0]))]), 2, 25, 5, canvas)
