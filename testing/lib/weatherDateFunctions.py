@@ -80,23 +80,12 @@ def getWeatherJSON(latitude, longitude):
   except KeyError:
     return weather
   
-#returns:
-# dayTime: string = day and time in format "Mon 00:00 AM"
-# date:    string = date in format "Jan 01 2025"  
-# seconds: string = current amount of seconds 
-def getTimeAndDate():
-  currTime = datetime.now()
 
-  weekday = currTime.strftime("%a")
-  month = currTime.strftime("%b")
-  year = currTime.strftime("%Y")
-  day = currTime.strftime("%d")
-  hour = currTime.strftime("%I")
-  minute = currTime.strftime("%M")
-  seconds = currTime.strftime("%S")
-  am_pm = currTime.strftime("%p")
+def getDateTime():
+    now = datetime.now()
+    
+    day_time = now.strftime("%a %I:%M %p")   # e.g., "Fri 02:45 PM"
+    date = now.strftime("%b %d %Y")          # e.g., "Jul 19 2025"
+    seconds = now.strftime("%S")             # e.g., "07"
 
-  dayTime = " ".join([weekday, ":".join([hour, minute]), am_pm])
-  date = " ".join([month, day, year])
-
-  return dayTime, date, seconds
+    return day_time, date, seconds
