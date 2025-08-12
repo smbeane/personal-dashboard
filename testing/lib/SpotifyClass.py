@@ -1,9 +1,8 @@
 import requests
 import base64
 
-REFRESH_TOKEN = "AQAr38rlNlnrhb-KftJwfNyu5zLukmj_WidoIswV-lg44-wKgeogwcAn1ZclmTKco_1o9nkBX1BGvC949nioUuJ9LMv7WhzfL1DyKEhxl-tYN1r6weusLY3rV5qRRd8H2ik"
-CLIENT_ID = "1d63c5cfdfd24410b1630dfb6a6d0e48"
-CLIENT_SECRET = "d316ab44da0d48f8aa238608bae2cd38"
+from spotify_secrets import CLIENT_SECRET, CLIENT_ID, REFRESH_TOKEN
+
 
 
 class SpotifyUser:
