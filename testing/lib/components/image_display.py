@@ -1,16 +1,14 @@
-from displayFunctions import set_image
-from PIL.ImageFile import ImageFile
+from PIL.Image import Image
+
+BLACK = (0, 0, 0)
 
 class ImageDisplay: 
-    def __init__(self, position: tuple[int, int], dims: tuple[int, int], image: ImageFile) -> None: 
-        self.posiiton = position
+    def __init__(self, position: tuple[int, int], dims: tuple[int, int], image: Image) -> None: 
+        self.position = position
         self.dims = dims
         self.image = image
     
     def make_display(self, canvas):
-        if self.image.mode != "RGB":
-            self.image = self.image.convert("RGB")
-
         [length_x, length_y] = self.dims
         [start_x, start_y] = self.position
         allpixels = list(self.image.getdata())
@@ -20,7 +18,9 @@ class ImageDisplay:
                 color = allpixels[y * length_x + x]
                 canvas.SetPixel(x + start_x, y + start_y, color[0], color[2], color[1])
 
-    def update_display(self, canvas, image: ImageFile) -> None:
+        return canvas
+
+    def update_display(self, canvas, image: Image) -> None:
         self.image = image
         self.make_display(canvas)
     

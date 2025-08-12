@@ -1,25 +1,25 @@
-from samplebase import SampleBase
 import time
 from datetime import datetime, timedelta
 import RPi.GPIO as GPIO
 from PIL import Image
+from typing import Tuple, Any
 
-from pages.home import HomeScreen
+from samplebase import SampleBase
+from pages.home_screen import HomeScreen
+from pages.weather_screen import WeatherScreen
 
 from lib.SpotifyClass import SpotifyUser
 from lib.displayFunctions import (
-    retrieveURLImage,
-    setImage,
+    retrieve_url_image,
     setBubbles,
-    setText,
-    setDivider,
+    setText
 )
-from lib.weatherDateFunctions import getDays, getTimeAndDate, getWeatherVals
+from lib.weatherDateFunctions import getDays, getWeatherVals
 
 DASHBOARD_STATES = ["Home", "Weather", "Spotify"]
-BACK_PIN = 18
-PAUSE_PIN = 22
-NEXT_PIN = 35
+LEFT_PIN = 18
+MIDDLE_PIN = 22
+RIGHT_PIN = 35
 WHITE = [255, 255, 255]
 BLUE = [63, 81, 181]
 
@@ -30,8 +30,7 @@ LONG = -86.9063623
 class Dashboard(SampleBase):
     def __init__(self, *args, **kwargs):
         super(Dashboard, self).__init__(*args, **kwargs)
-        self.canvas = self.matrix.CreateFrameCanvas()
-        self.home_screen = HomeScreen(self.canvas)
+        self.currPage = None
         self.currMode = "Home"
         self.lastMode = "Home"
         self.user = None
@@ -40,21 +39,13 @@ class Dashboard(SampleBase):
         self.selection = -1
         self.keepRunning = True
         self.canvas = None
-
-    def homeScreen(self):
-        self.home_screen.render_screen()
-
+        self.home_screen = None
+    
+    #TODO change to individual file
     def weatherScreen(self):
         while self.keepRunning:
-            self.canvas.Clear()
             todays_weather, low_temps, high_temps = getWeatherVals(LAT, LONG)
             days = getDays()
-            image = Image.open(
-                "/home/smbeane5235/spotify/extras/icons/" + todays_weather + ".png"
-            )
-
-            setImage(canvas=self.canvas, image=image, dims=[24, 18], position=[0, 0])
-            setDivider(canvas=self.canvas, position=[24, 2], length=28, rgb=BLUE)
 
             temps = "|".join([str(low_temps[0]).zfill(2), str(high_temps[0]).zfill(2)])
             setText(
@@ -91,6 +82,7 @@ class Dashboard(SampleBase):
                 time.sleep(0.1)
                 sleepCounter += 1
 
+    #TODO change to individual file
     def spotifyScreen(self):
         loopCount = 0
         if self.user == None:
@@ -133,7 +125,7 @@ class Dashboard(SampleBase):
                         ]["url"]
                         song_duration = self.user.playbackState["item"]["duration_ms"]
                         bubblesFilled = 0
-                        image = retrieveURLImage(albumCover)
+                        image = retrieve_url_image(albumCover)
 
                     else:
                         self.canvas.Clear()
@@ -144,10 +136,8 @@ class Dashboard(SampleBase):
 
                         if len(currentArtist) > 11:
                             currentArtist = currentArtist[1:] + currentArtist[0]
-                    if image != None:
-                        setImage(
-                            canvas=self.canvas, image=image, dims=[24, 24], position=[2, 4]
-                        )
+                    #if image != None:
+                        #setImage(canvas=self.canvas, image=image, dims=[24, 24], position=[2, 4])
                     setBubbles(canvas=self.canvas, bubblesFilled=bubblesFilled)
                     setText(
                         canvas=self.canvas,
@@ -174,6 +164,7 @@ class Dashboard(SampleBase):
             else:
                 loopCount += 1
 
+    #TODO change to individual file
     def pagesScreen(self):
         while self.keepRunning:
             self.canvas.Clear()
@@ -203,70 +194,53 @@ class Dashboard(SampleBase):
             while self.keepRunning:
                 time.sleep(0.1)
 
+    #TODO update pages, button actions, and typing
     def run(self):
         self.canvas = self.matrix.CreateFrameCanvas()
         self.setupGPIO()
+        self.currPage = WeatherScreen(self.canvas)
         while True:
             print(self.currMode)
-            self.lastMode = self.currMode
 
-            if self.currMode == "Home":
-                print("Mode == Home")
-                self.selection = 0
+            self.currPage.update(self.matrix)
 
-                self.homeScreen()
+            time.sleep(1)
 
-            elif self.currMode == "Weather":
-                print("Mode == Weather")
-                self.selection = 1
-
-                self.weatherScreen()
-
-            elif self.currMode == "Spotify":
-                print("Mode == Spotify")
-                self.selection = 2
-
-                self.spotifyScreen()
-
-            elif self.currMode == "Pages":
-                print("Mode == Pages")
-
-                self.pagesScreen()
-
-            else:
-                print("Mode == ???")
-
-                setText(canvas=self.canvas, text="No clue", position=[0, 0], rgb=WHITE)
-                self.canvas = self.matrix.SwapOnVSync(self.canvas)
-
-                while self.keepRunning:
-                    time.sleep(0.1)
-
-            self.keepRunning = True
-
+    #TODO update typing
     def setupGPIO(self):
         GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(BACK_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.setup(PAUSE_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.setup(NEXT_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(LEFT_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(MIDDLE_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(RIGHT_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.add_event_detect(
-            BACK_PIN, GPIO.FALLING, callback=self.buttonActions, bouncetime=200
+            LEFT_PIN, GPIO.FALLING, callback=self.buttonActions, bouncetime=200
         )
         GPIO.add_event_detect(
-            NEXT_PIN, GPIO.FALLING, callback=self.buttonActions, bouncetime=200
+            MIDDLE_PIN, GPIO.FALLING, callback=self.buttonActions, bouncetime=200
         )
         GPIO.add_event_detect(
-            PAUSE_PIN, GPIO.BOTH, callback=self.buttonActions, bouncetime=200
+            RIGHT_PIN, GPIO.BOTH, callback=self.buttonActions, bouncetime=200
         )
 
+    #TODO update typing
     def destroy(self):
         self.canvas.Clear()
         self.canvas = self.matrix.SwapOnVSync(self.canvas)
         GPIO.cleanup()
 
+    #TODO update button actions to be page specific
     def buttonActions(self, channel):
+        if channel == LEFT_PIN:
+            print("Left Button Pressed")
+        elif channel == MIDDLE_PIN:
+            print("Middle Button Pressed")
+        elif channel == RIGHT_PIN:
+            print("Right Button Pressed")
+        else:
+            print("Not sure what button was pressed")
+        
         # Back button was released
-        if channel == BACK_PIN:
+        if channel == LEFT_PIN:
 
             if self.currMode == "Spotify":
                 print("Back Pressed")
@@ -278,7 +252,7 @@ class Dashboard(SampleBase):
                 self.keepRunning = False
 
         # Next button was released
-        elif channel == NEXT_PIN:
+        elif channel == RIGHT_PIN:
             if self.currMode == "Spotify":
                 print("Next Pressed")
                 self.user.alterPlayback("next")
@@ -289,33 +263,33 @@ class Dashboard(SampleBase):
                 self.keepRunning = False
 
         # Pause button was pressed
-        elif channel == PAUSE_PIN and GPIO.input(PAUSE_PIN) == 0:
+        elif channel == MIDDLE_PIN and GPIO.input(MIDDLE_PIN) == 0:
             self.pressTime = datetime.now()
 
         # Pause button was released
-        elif channel == PAUSE_PIN and GPIO.input(PAUSE_PIN) == 1:
-            releaseTime = datetime.now()
-            holdTime = releaseTime - self.pressTime
+        # elif channel == MIDDLE_PIN and GPIO.input(MIDDLE_PIN) == 1:
+        #     releaseTime = datetime.now()
+        #     holdTime = releaseTime - self.pressTime
 
-            # button was held, opens the pages tab
-            if holdTime >= timedelta(seconds=0.75) and self.currMode != "Pages":
-                self.currMode = "Pages"
-                self.keepRunning = False
+        #     # button was held, opens the pages tab
+        #     if holdTime >= timedelta(seconds=0.75) and self.currMode != "Pages":
+        #         print("Middle Button Held")
+        #         self.currMode = "Pages"
+        #         self.keepRunning = False
 
-            elif self.currMode == "Spotify":
-                if self.user.playbackState["is_playing"]:
-                    self.user.alterPlayback("pause")
-                else:
-                    self.user.alterPlayback("play")
-                self.user.updatePlayback()
-            elif self.currMode == "Pages":
-                self.currMode = DASHBOARD_STATES[self.selection]
-                self.keepRunning = False
+        #     elif self.currMode == "Spotify":
+        #         if self.user.playbackState["is_playing"]:
+        #             self.user.alterPlayback("pause")
+        #         else:
+        #             self.user.alterPlayback("play")
+        #         self.user.updatePlayback()
+        #     elif self.currMode == "Pages":
+        #         self.currMode = DASHBOARD_STATES[self.selection]
+        #         self.keepRunning = False
 
         # ???
         else:
-            print("??? Pressed")
-
+            print("{channel} Pressed")
 
 if __name__ == "__main__":
     try:

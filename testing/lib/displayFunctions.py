@@ -1,7 +1,8 @@
 import requests
 from PIL import Image
 from PIL.ImageFile import ImageFile
-from letters import font
+from lib.letters import font
+
 from io import BytesIO
 
 
@@ -67,10 +68,3 @@ def setText(canvas, text, position, max_chars, rgb):
             break
         set_character(canvas, char, (start_x + char_count * 4, start_y), rgb)
         char_count += 1
-
-def setDivider(canvas, position, length, rgb):
-    [start_x, start_y] = position
-    [r, g, b] = rgb
-
-    for y in range(start_y, start_y + length):
-        canvas.SetPixel(start_x, y, r, b, g)
