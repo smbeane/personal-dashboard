@@ -7,6 +7,7 @@ from typing import Tuple, Any
 from samplebase import SampleBase
 from pages.home_screen import HomeScreen
 from pages.weather_screen import WeatherScreen
+from pages.page_selection_screen import PageSelectionScreen
 
 from lib.SpotifyClass import SpotifyUser
 from lib.displayFunctions import (
@@ -40,47 +41,6 @@ class Dashboard(SampleBase):
         self.keepRunning = True
         self.canvas = None
         self.home_screen = None
-    
-    #TODO change to individual file
-    def weatherScreen(self):
-        while self.keepRunning:
-            todays_weather, low_temps, high_temps = getWeatherVals(LAT, LONG)
-            days = getDays()
-
-            temps = "|".join([str(low_temps[0]).zfill(2), str(high_temps[0]).zfill(2)])
-            setText(
-                canvas=self.canvas,
-                text="today",
-                position=[2, 19],
-                max_chars=5,
-                rgb=WHITE,
-            )
-            setText(
-                canvas=self.canvas, text=temps, position=[2, 25], max_chars=5, rgb=WHITE
-            )
-
-            for i in range(1, 5):
-                low_high = "|".join(
-                    [str(low_temps[i]).zfill(2), str(high_temps[i]).zfill(2)]
-                )
-
-                full_text = " ".join([days[i], low_high])
-                pos = [27, 3 + (i - 1) * 7]
-
-                setText(
-                    canvas=self.canvas,
-                    text=full_text,
-                    position=pos,
-                    max_chars=9,
-                    rgb=WHITE,
-                )
-
-            self.canvas = self.matrix.SwapOnVSync(self.canvas)
-
-            sleepCounter = 0
-            while self.keepRunning and sleepCounter < 30 * 60 * 10:
-                time.sleep(0.1)
-                sleepCounter += 1
 
     #TODO change to individual file
     def spotifyScreen(self):
@@ -164,47 +124,21 @@ class Dashboard(SampleBase):
             else:
                 loopCount += 1
 
-    #TODO change to individual file
-    def pagesScreen(self):
-        while self.keepRunning:
-            self.canvas.Clear()
-
-            for index, state in enumerate(DASHBOARD_STATES):
-                position = [4, 2 + 7 * index]
-                setText(
-                    canvas=self.canvas,
-                    text=state,
-                    position=position,
-                    max_chars=10,
-                    rgb=WHITE,
-                )
-
-            if self.selection != -1:
-                position = [1, 2 + 7 * self.selection]
-                setText(
-                    canvas=self.canvas,
-                    text="|",
-                    position=position,
-                    max_chars=1,
-                    rgb=BLUE,
-                )
-
-            self.canvas = self.matrix.SwapOnVSync(self.canvas)
-
-            while self.keepRunning:
-                time.sleep(0.1)
-
     #TODO update pages, button actions, and typing
     def run(self):
         self.canvas = self.matrix.CreateFrameCanvas()
         self.setupGPIO()
-        self.currPage = WeatherScreen(self.canvas)
+        
+        self.curr_page = PageSelectionScreen(self.canvas, DASHBOARD_STATES)
+        self.curr_page.init_page(self.matrix, 0)
+
+        i = 0
         while True:
-            print(self.currMode)
+            print(f"rendering with {i}")
+            self.curr_page.update_page(self.matrix, i)
+            i += 1
 
-            self.currPage.update(self.matrix)
-
-            time.sleep(1)
+            time.sleep(5)
 
     #TODO update typing
     def setupGPIO(self):
