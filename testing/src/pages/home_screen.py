@@ -1,13 +1,11 @@
-import time
-from datetime import datetime
 from PIL import Image
-from PIL.Image import Image as Image_Type
 import math
 from typing import Tuple, Any
 
 from pages.base_screen import BaseScreen
 from lib.components.grid import Grid
 from lib.components.image_display import ImageDisplay
+from lib.api_users.datetime_user import DateTimeUser
 
 WHITE = [255, 255, 255]
 IMAGE_POS = (1, 4)
@@ -22,72 +20,55 @@ FILE_PATH = "../lib/images/clock_frame.png"
 MINUTE_ARM_LENGTH = 9
 HOUR_ARM_LENGTH = 6
 
-class DateAndTime():
-    def __init__(self, time: str, day_and_date: str, year: str, seconds: int) -> None:
-        self.time = time
-        self.day_and_date = day_and_date
-        self.year = year
-        self.seconds = seconds
-
 class HomeScreen(BaseScreen):
     def __init__(self, canvas: Any) -> None:
         super().__init__(canvas)
-        self.page_active = False
-        self.dateTime = None
-        self.sleep_counter = 0
-
-    def update(self, matrix: Any) -> None:
-        self.page_active = True
-        self.update_data()
-        self.canvas.Clear()
-
-        time_grid, date_grid, clock_frame = self.init_display()
-
-        while self.page_active:
-            matrix.SwapOnVSync(self.canvas) 
-            time.sleep(int(60 - self.dateTime.seconds) + 1)
-            self.update_data()
-
-            self.update_display(time_grid, date_grid, clock_frame)
-            
-    def update_data(self) -> None:
-        now = datetime.now()
-    
-        day_and_date = now.strftime("%a %b%d")
-        year = now.strftime("     %Y")
-        curr_time = now.strftime(" %I:%M%p ")
-        seconds = now.second
-
-        self.dateTime = DateAndTime(curr_time, day_and_date, year, seconds)
-
-    def init_display(self) -> Tuple[Grid, Grid, ImageDisplay]:
-        time_grid = Grid(TIME_GRID_POS, GRID_SIZE, "s", [self.dateTime.time, ""])
-        time_grid.render_offscreen(self.canvas)
+        self.user: DateTimeUser = DateTimeUser()
         
-        date_grid = Grid(DATE_GRID_POS, GRID_SIZE, "s", [self.dateTime.year, self.dateTime.day_and_date])
-        date_grid.render_offscreen(self.canvas)
+        self.time_grid: Grid = None
+        self.date_grid: Grid = None
+        self.clock_frame_display: ImageDisplay = None
+
+    def init_page(self, matrix: Any) -> None:
+        self.canvas.Clear()
+        self._update_data()
+
+        self.time_grid = Grid(TIME_GRID_POS, GRID_SIZE, "s", [self.user.time, ""])
+        self.time_grid.initial_render(self.canvas)
+        
+        self.date_grid = Grid(DATE_GRID_POS, GRID_SIZE, "s", [self.user.year, self.user.day_and_date])
+        self.date_grid.initial_render(self.canvas)
 
         clock_frame_image = get_image(FILE_PATH)
-        clock_frame_display = ImageDisplay(IMAGE_POS, IMAGE_SIZE, clock_frame_image)
-        clock_frame_display.make_display(self.canvas)
-        render_clock_arms(self.canvas, self.dateTime.time, CLOCK_CENTER)
+        self.clock_frame_display = ImageDisplay(IMAGE_POS, IMAGE_SIZE, clock_frame_image)
+        self.clock_frame_display.make_display(self.canvas)
+        render_clock_arms(self.canvas, self.user.time, CLOCK_CENTER)
 
-
-        return (time_grid, date_grid, clock_frame_display)
+        matrix.SwapOnVSync(self.canvas)
     
-    def update_display(self, time_grid: Grid, date_grid: Grid, clock_frame: ImageDisplay) -> None:
-        time_grid.update_offscreen(self.canvas, [self.dateTime.time, ""])
-        date_grid.update_offscreen(self.canvas, [self.dateTime.year, self.dateTime.day_and_date])
-        clock_frame.make_display(self.canvas)
-        render_clock_arms(self.canvas, self.dateTime.time, CLOCK_CENTER)
+    def update_page(self, matrix: Any) -> None:
+        self._update_data()        
+        self._update_display()
 
+        matrix.SwapOnVSync(self.canvas)
+            
+    def _update_data(self) -> None:
+        self.user.update_data()
 
-def get_image(ref: str) -> Image_Type: 
+    def _update_display(self) -> None:
+        self.time_grid.update_and_render(self.canvas, [self.user.time, ""])
+        
+        self.date_grid.update_and_render(self.canvas, [self.user.year, self.user.day_and_date])
+        
+        self.clock_frame_display.make_display(self.canvas)
+        render_clock_arms(self.canvas, self.user.time, CLOCK_CENTER)
+
+def get_image(ref: str) -> Image.Image: 
     image = Image.open(ref)
 
     return image
 
-#needs updating
+#TODO update function to a better line drawing alg
 def render_clock_arms(canvas: Any, time: str, start_pos: Tuple[int, int]) -> None:
     start_x, start_y = start_pos
     time = time.strip().upper().replace("AM", "").replace("PM", "")

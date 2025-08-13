@@ -1,18 +1,27 @@
+from typing import Any
+
 class BaseScreen:
-    def __init__(self, canvas):
+    def __init__(self, canvas: Any):
         self.canvas = canvas
-        self.page_active = False
     
-    def update(self) -> None:
-        pass
-    
-    def update_data(self) -> None:
+    def init_page(self, matrix: Any) -> None:
+        self.canvas.Clear()
+        self._update_data()
+
+        #initilize grids and images
+
+        matrix.SwapOnVSync(self.canvas)
+        
+    def update_page(self, matrix: Any) -> None:        
+        self._update_data()
+        self._update_display()
+
+        matrix.SwapOnVSync(self.canvas)
+
+    def _update_data(self) -> None:
         pass
 
-    def init_page(self) -> None:
-        pass
-
-    def update_page(self) -> None:
+    def _update_display(self) -> None:
         pass
 
     

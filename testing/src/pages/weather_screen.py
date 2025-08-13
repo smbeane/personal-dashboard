@@ -1,85 +1,108 @@
-from typing import Any, Tuple
+from typing import Any, List
 from PIL import Image
-from PIL.Image import Image as Image_Type
+from datetime import datetime
 
 from pages.base_screen import BaseScreen
-from lib.weatherDateFunctions import getDays, getWeatherVals
-
 from lib.components.grid import Grid
 from lib.components.image_display import ImageDisplay
 from lib.components.divider import Divider
-
+from lib.api_users.open_meteo_user import OpenMeteoUser
 
 LAT = 40.4249916
 LONG = -86.9063623
-BLUE = [63, 81, 181]
+JOINING_CHAR = "|"
 
+IMAGE_DIR = "/home/smbeane5235/spotify/extras/icons/"
 IMAGE_POS = (0, 0)
 IMAGE_SIZE = (24, 18)
 
+BLUE = [63, 81, 181]
 DIVIDER_POS = (24, 2)
 DIVIDER_LEN = 28
 
-class Weather():
-    def __init__(self, todays_weather: str, low_temps: Tuple[int], high_temps: Tuple[int]):
-        self.todays_weather = todays_weather
-        self.todays_low = low_temps[0]
-        self.todays_high = high_temps[0]
-        self.low_temps = low_temps[1:]
-        self.high_temps = high_temps[1:]
-
+TODAYS_POS = (2, 19)
+TODAYS_SIZE = (5, 2)
+TEMPS_POS = (27, 4)
+TEMPS_SIZE = (9, 4)
 
 class WeatherScreen(BaseScreen):
     def __init__(self, canvas: Any) -> None:
         super().__init__(canvas)
-        self.page_active = False
-        self.days = None
-        self.weather = None
-        self.imageURL = None
+        self.user = OpenMeteoUser(LAT, LONG)
+        self.image_url = None
+        self.weather_changed = False
+        self.days = []
         
-    
-    def update(self, matrix: Any) -> None:
-        self.page_active = True
-        self.update_data()
+        self.weather_image_display: ImageDisplay = None
+        self.todays_grid: Grid = None
+        self.week_grid: Grid = None
+
+    def init_page(self, matrix: Any) -> None:
         self.canvas.Clear()
-
-        self.init_display()
-        matrix.SwapOnVSync(self.canvas)
-
-        while self.page_active:
-            pass
+        self._update_data()
         
-    def update_data(self) -> None:
-        todays_weather, low_temps, high_temps = getWeatherVals(LAT, LONG)
-        self.weather = Weather(todays_weather, low_temps, high_temps)
-        self.days = getDays()
-
-        self.imageURL = "/home/smbeane5235/spotify/extras/icons/" + todays_weather + ".png"
-        
-
-    def init_display(self):
-        weather_image = get_image(self.imageURL)
-        weather_image_display = ImageDisplay(IMAGE_POS, IMAGE_SIZE, weather_image)
-        weather_image_display.make_display(self.canvas)
+        weather_image = get_image(self.image_url)
+        self.weather_image_display = ImageDisplay(IMAGE_POS, IMAGE_SIZE, weather_image)
+        self.weather_image_display.make_display(self.canvas)
 
         divider = Divider(DIVIDER_POS, DIVIDER_LEN, BLUE)
         divider.render_divider(self.canvas)
 
-        #todays temperature grid
+        temps = join_strs(self.user.todays_low, self.user.todays_high)
+        self.todays_grid = Grid(TODAYS_POS, TODAYS_SIZE, "s", ["today", temps])
+        self.todays_grid.initial_render(self.canvas)
 
+        grid_text = self._get_grid_text()
+        self.week_grid = Grid(TEMPS_POS, TEMPS_SIZE, "s", grid_text)
+        self.week_grid.initial_render(self.canvas)
 
-        #all days temperature grid
+        matrix.SwapOnVSync(self.canvas)
+    
+    def update_page(self, matrix: Any) -> None:
+        self._update_data()
+        self._update_display()
 
+        matrix.SwapOnVSync(self.canvas)
 
+    def _update_data(self) -> None:
+        self.user.update_data()
+        self.days = get_days()
 
-    def update_page(self):
-        pass
+        self.image_url = IMAGE_DIR + self.user.todays_weather + ".png"
+        
 
+    def _update_display(self) -> None:
+        weather_image = get_image(self.image_url)
+        self.weather_image_display.update_display(weather_image)
 
-def getDays() -> Tuple:
-    return ()
+        self.todays_grid.update_and_render(self.canvas, ["today", join_strs(self.user.todays_low, self.user.todays_high)])
 
-def get_image(ref: str) -> Image_Type: 
+        grid_text = self._get_grid_text()
+        self.week_grid.update_and_render(self.canvas, grid_text)
+
+    def _get_grid_text(self) -> List[str]:
+        grid_text = []
+        
+        for i in range(0, 4):
+            joined_temps = join_strs(self.user.low_temps[i], self.user.high_temps[i])
+            day_and_temps = " ".join([self.days[i], joined_temps])
+            grid_text.append(day_and_temps)
+
+        return grid_text
+
+def join_strs(first_str: int | str, second_str: int | str, joining_char: str = JOINING_CHAR) -> str:
+    first_str = str(first_str).zfill(2)
+    second_str = str(second_str).zfill(2)
+    return f"{first_str}{joining_char}{second_str}"
+
+def get_days() -> List[str]:
+    days_all = ["mon","tue","wed","thu","fri","sat","sun"]
+    today_index = datetime.now().weekday()
+    
+    return [days_all[(today_index + i) % 7] for i in range(5)]
+
+def get_image(ref: str) -> Image.Image: 
     image = Image.open(ref)
 
     return image
+
