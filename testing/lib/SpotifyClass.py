@@ -1,7 +1,7 @@
 import requests
 import base64
 
-from spotify_secrets import CLIENT_SECRET, CLIENT_ID, REFRESH_TOKEN
+from lib.spotify_secrets import CLIENT_SECRET, CLIENT_ID, REFRESH_TOKEN
 
 
 
