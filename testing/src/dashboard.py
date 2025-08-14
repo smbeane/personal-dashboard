@@ -8,8 +8,8 @@ from samplebase import SampleBase
 from pages.home_screen import HomeScreen
 from pages.weather_screen import WeatherScreen
 from pages.page_selection_screen import PageSelectionScreen
+from pages.spotify_screen import SpotifyScreen
 
-from lib.SpotifyClass import SpotifyUser
 from lib.displayFunctions import (
     retrieve_url_image,
     setBubbles,
@@ -42,103 +42,18 @@ class Dashboard(SampleBase):
         self.canvas = None
         self.home_screen = None
 
-    #TODO change to individual file
-    def spotifyScreen(self):
-        loopCount = 0
-        if self.user == None:
-            self.user = SpotifyUser()
-
-        while self.keepRunning:
-            # checks for matrix update every second
-            if loopCount % 30 == 0:
-                print("Update Spotify Playback")
-                self.user.updatePlayback()
-
-            if loopCount % 10 == 0:
-                if self.user.device == 0 or self.user.playbackState == "Not Playing":
-                    print("No device playing")
-                    self.canvas.Clear()
-                    setText(
-                        canvas=self.canvas,
-                        text="no devices on",
-                        position=[7, 13],
-                        max_chars=16,
-                        rgb=WHITE,
-                    )
-                    self.canvas = self.matrix.SwapOnVSync(self.canvas)
-                else:
-                    # if its the first time through or song has changed
-                    if (
-                        not self.previousPlayback
-                        or self.previousPlayback["item"]["name"]
-                        != self.user.playbackState["item"]["name"]
-                    ):
-                        self.canvas.Clear()
-                        currentSong = self.user.playbackState["item"]["name"] + "  "
-                        currentArtist = (
-                            self.user.playbackState["item"]["artists"][0]["name"]
-                            + "   "
-                        )
-                        self.previousPlayback = self.user.playbackState
-                        albumCover = self.user.playbackState["item"]["album"]["images"][
-                            0
-                        ]["url"]
-                        song_duration = self.user.playbackState["item"]["duration_ms"]
-                        bubblesFilled = 0
-                        image = retrieve_url_image(albumCover)
-
-                    else:
-                        self.canvas.Clear()
-                        song_progress = self.user.playbackState["progress_ms"]
-                        bubblesFilled = int(song_progress / song_duration * 33)
-                        if len(currentSong) > 11:
-                            currentSong = currentSong[1:] + currentSong[0]
-
-                        if len(currentArtist) > 11:
-                            currentArtist = currentArtist[1:] + currentArtist[0]
-                    #if image != None:
-                        #setImage(canvas=self.canvas, image=image, dims=[24, 24], position=[2, 4])
-                    setBubbles(canvas=self.canvas, bubblesFilled=bubblesFilled)
-                    setText(
-                        canvas=self.canvas,
-                        text=currentSong,
-                        posititon=[27, 6],
-                        max_chars=9,
-                        rgb=WHITE,
-                    )
-                    setText(
-                        canvas=self.canvas,
-                        text=currentArtist,
-                        position=[27, 13],
-                        max_chars=9,
-                        rgb=WHITE,
-                    )
-
-                    self.canvas = self.matrix.SwapOnVSync(self.canvas)
-
-            # updates playback every 3 seconds
-
-            time.sleep(0.1)
-            if loopCount == 150:
-                loopCount = 0
-            else:
-                loopCount += 1
-
     #TODO update pages, button actions, and typing
     def run(self):
         self.canvas = self.matrix.CreateFrameCanvas()
         self.setupGPIO()
-        
-        self.curr_page = PageSelectionScreen(self.canvas, DASHBOARD_STATES)
-        self.curr_page.init_page(self.matrix, 0)
+        self.curr_page = SpotifyScreen(self.canvas)
+        self.curr_page.init_page(self.matrix)
 
         i = 0
         while True:
-            print(f"rendering with {i}")
-            self.curr_page.update_page(self.matrix, i)
-            i += 1
+            time.sleep(60)
+            self.curr_page.update_page(self.matrix)    
 
-            time.sleep(5)
 
     #TODO update typing
     def setupGPIO(self):
