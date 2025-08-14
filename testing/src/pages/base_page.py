@@ -1,6 +1,6 @@
 from typing import Any
 
-class BaseScreen:
+class BasePage():
     def __init__(self, canvas: Any):
         self.canvas = canvas
     

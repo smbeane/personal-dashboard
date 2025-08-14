@@ -5,10 +5,10 @@ from PIL import Image
 from typing import Tuple, Any
 
 from samplebase import SampleBase
-from pages.home_screen import HomeScreen
-from pages.weather_screen import WeatherScreen
-from pages.page_selection_screen import PageSelectionScreen
-from pages.spotify_screen import SpotifyScreen
+from pages.home_page import HomePage
+from pages.weather_page import WeatherPage
+from pages.page_selection_page import PageSelectionPage
+from pages.spotify_page import SpotifyPage
 
 from lib.displayFunctions import (
     retrieve_url_image,
@@ -46,7 +46,7 @@ class Dashboard(SampleBase):
     def run(self):
         self.canvas = self.matrix.CreateFrameCanvas()
         self.setupGPIO()
-        self.curr_page = SpotifyScreen(self.canvas)
+        self.curr_page = SpotifyPage(self.canvas)
         self.curr_page.init_page(self.matrix)
 
         i = 0

@@ -3,7 +3,7 @@ from PIL import Image
 import requests
 from io import BytesIO
 
-from pages.base_screen import BaseScreen
+from pages.base_page import BasePage
 from lib.api_users.spotify_user import SpotifyUser
 from lib.components.grid import Grid
 from lib.components.image_display import ImageDisplay
@@ -23,7 +23,7 @@ NO_DEVICES_SIZE = (16, 1)
 
 
 
-class SpotifyScreen(BaseScreen):
+class SpotifyPage(BasePage):
     def __init__(self, canvas):
         super().__init__(canvas)
         self.user = SpotifyUser()
@@ -37,7 +37,6 @@ class SpotifyScreen(BaseScreen):
         self._update_data()
 
         if self.user.raw_playback == "No device playing":
-            print("SpotifyScreen: No devices playing")
             self._no_devices()
             matrix.SwapOnVSync(self.canvas)
             return

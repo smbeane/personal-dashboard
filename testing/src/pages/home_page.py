@@ -2,12 +2,11 @@ from PIL import Image
 import math
 from typing import Tuple, Any
 
-from pages.base_screen import BaseScreen
+from pages.base_page import BasePage
 from lib.components.grid import Grid
 from lib.components.image_display import ImageDisplay
 from lib.api_users.datetime_user import DateTimeUser
 
-WHITE = [255, 255, 255]
 IMAGE_POS = (1, 4)
 CLOCK_CENTER = (11, 14)
 IMAGE_SIZE = (24, 24)
@@ -20,7 +19,7 @@ FILE_PATH = "../lib/images/clock_frame.png"
 MINUTE_ARM_LENGTH = 9
 HOUR_ARM_LENGTH = 6
 
-class HomeScreen(BaseScreen):
+class HomePage(BasePage):
     def __init__(self, canvas: Any) -> None:
         super().__init__(canvas)
         self.user: DateTimeUser = DateTimeUser()

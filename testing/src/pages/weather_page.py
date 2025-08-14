@@ -2,7 +2,7 @@ from typing import Any, List
 from PIL import Image
 from datetime import datetime
 
-from pages.base_screen import BaseScreen
+from pages.base_page import BasePage
 from lib.components.grid import Grid
 from lib.components.image_display import ImageDisplay
 from lib.components.divider import Divider
@@ -25,7 +25,7 @@ TODAYS_SIZE = (5, 2)
 TEMPS_POS = (27, 4)
 TEMPS_SIZE = (9, 4)
 
-class WeatherScreen(BaseScreen):
+class WeatherPage(BasePage):
     def __init__(self, canvas: Any) -> None:
         super().__init__(canvas)
         self.user = OpenMeteoUser(LAT, LONG)

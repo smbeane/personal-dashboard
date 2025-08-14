@@ -1,12 +1,12 @@
 from typing import Any, List
 
-from pages.base_screen import BaseScreen
+from pages.base_page import BasePage
 from lib.components.grid import Grid 
 
 PAGES_POS = (4, 2)
 PAGES_X = 10
 
-class PageSelectionScreen(BaseScreen):
+class PageSelectionPage(BasePage):
     def __init__(self, canvas: Any, pages: List[str]) -> None:
         super().__init__(canvas)
         self.pages = [" " + page for page in pages]
