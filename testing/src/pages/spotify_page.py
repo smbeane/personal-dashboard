@@ -10,6 +10,8 @@ from lib.components.image_display import ImageDisplay
 from lib.components.progress_bar import ProgressBar
 
 REFRESH_TIME = 1
+WHITE = [255, 255, 255]
+BLUE = [63, 81, 181]
 
 COVER_POS = (2, 4)
 COVER_SIZE = (24, 24)
@@ -44,7 +46,7 @@ class SpotifyPage(BasePage):
         if self.update_code == 204:
             self.names_grid = Grid(NAMES_POS, NAMES_SIZE, "s", ["", ""])
             self.album_display = ImageDisplay(COVER_POS, COVER_SIZE, None)
-            self.progress_bar = ProgressBar(PROGRESS_POS, PROGRESS_SIZE)
+            self.progress_bar = ProgressBar(PROGRESS_POS, PROGRESS_SIZE, WHITE, BLUE)
 
             self._no_devices()
             matrix.SwapOnVSync(self.canvas)
@@ -53,7 +55,7 @@ class SpotifyPage(BasePage):
         if self.update_code == 400:
             self.names_grid = Grid(NAMES_POS, NAMES_SIZE, "s", ["", ""])
             self.album_display = ImageDisplay(COVER_POS, COVER_SIZE, None)
-            self.progress_bar = ProgressBar(PROGRESS_POS, PROGRESS_SIZE)
+            self.progress_bar = ProgressBar(PROGRESS_POS, PROGRESS_SIZE, WHITE, BLUE)
             
             self._error()
             matrix.SwapOnVSync(self.canvas)
@@ -71,7 +73,7 @@ class SpotifyPage(BasePage):
         self.album_display = ImageDisplay(COVER_POS, COVER_SIZE, cover_image)
         self.album_display.make_display(self.canvas)
 
-        self.progress_bar = ProgressBar(PROGRESS_POS, PROGRESS_SIZE)
+        self.progress_bar = ProgressBar(PROGRESS_POS, PROGRESS_SIZE, WHITE, BLUE)
         self.progress_bar.initial_render(self.canvas, progress)
 
         matrix.SwapOnVSync(self.canvas)

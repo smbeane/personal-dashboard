@@ -98,12 +98,10 @@ class Grid:
     def _scroll_grid_x(self, canvas: Any) -> None:
         scrolled_content = []
         all_lines_at_start = all(self.scroll_indexes[index] == 0 for index in range(len(self.scroll_indexes)))
-        print(self.scroll_indexes)
 
         for index, line in enumerate(self.offscreen_content[:self.y_len]):
-            print(line)
+            
             if self._line_needs_scrolled(line, index, all_lines_at_start):
-                print("Line Scrolled")
                 scroll_index = self.scroll_indexes[index]
                 scrolled_line = f"{''.join(line[1:])}{line[0]}"
                 
