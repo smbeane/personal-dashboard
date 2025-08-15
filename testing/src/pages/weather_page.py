@@ -8,6 +8,8 @@ from lib.components.image_display import ImageDisplay
 from lib.components.divider import Divider
 from lib.api_users.open_meteo_user import OpenMeteoUser
 
+REFRESH_TIME = 30 * 60
+
 LAT = 40.4249916
 LONG = -86.9063623
 JOINING_CHAR = "|"
@@ -28,6 +30,8 @@ TEMPS_SIZE = (9, 4)
 class WeatherPage(BasePage):
     def __init__(self, canvas: Any) -> None:
         super().__init__(canvas)
+        self.refresh_time = REFRESH_TIME
+
         self.user = OpenMeteoUser(LAT, LONG)
         self.image_url = None
         self.weather_changed = False

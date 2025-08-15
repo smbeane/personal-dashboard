@@ -8,28 +8,34 @@ class SpotifyUser():
         self.raw_playback = {}
         self.parsed_playback = {}
 
-    def update_data(self) -> bool:
+    def update_data(self) -> int:
         updated_raw = self.SpotifyAPI.get_playback()
         
         if "Error" in updated_raw:
             self.raw_playback = "Error updating playback"
             self.parsed_playback = {}
             
-            return True
-        
-        if updated_raw == self.raw_playback:
-            return False
+            return 400
         
         if updated_raw == "No device playing":
             self.raw_playback = "No device playing"
             self.parsed_playback = {}
             
-            return True
+            return 204
         
-        self.raw_playback = updated_raw
-        self.parsed_playback = self._get_parsed_playback(updated_raw)
+        if updated_raw == self.raw_playback:
+            return 200
 
-        return True
+        self.raw_playback = updated_raw
+        parsed_playback = self._get_parsed_playback(updated_raw)
+        
+        if self._song_changed(parsed_playback):
+            self.parsed_playback = parsed_playback
+            return 202
+        
+        else: 
+            self.parsed_playback = parsed_playback
+            return 201
 
     def _get_parsed_playback(self, raw_data: dict):
         song = raw_data["item"]
@@ -52,4 +58,7 @@ class SpotifyUser():
 
     def alter_playback(self):
         pass
+
+    def _song_changed(self, parsed_playback: dict) -> bool:
+        return self.parsed_playback == {} or self.parsed_playback["song"] != parsed_playback["song"]
 

@@ -14,7 +14,7 @@ class OpenMeteoUser():
         
 
     def update_data(self) -> None:
-        weather_data = self.get_data()
+        weather_data = self._get_data()
         self.todays_weather = weather_data["todays_weather"]
         
         if self.todays_weather == "Weather API Error":
@@ -31,7 +31,7 @@ class OpenMeteoUser():
             self.error = False
         
     def _get_data(self) -> Dict[str, Any]:
-        weather_json = self.get_weather_json()
+        weather_json = self._get_weather_json()
         if weather_json is None:
             return {
                 "todays_weather": "Weather API Error",

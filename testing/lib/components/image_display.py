@@ -1,5 +1,5 @@
 from PIL.Image import Image
-
+from typing import Any
 BLACK = (0, 0, 0)
 
 class ImageDisplay: 
@@ -8,9 +8,13 @@ class ImageDisplay:
         self.dims = dims
         self.image = image
     
-    def make_display(self, canvas):
+    def make_display(self, canvas: Any) -> None:
         [length_x, length_y] = self.dims
         [start_x, start_y] = self.position
+        
+        if self.image == None:
+            return
+
         allpixels = list(self.image.getdata())
 
         for y in range(0, length_y):
@@ -20,7 +24,7 @@ class ImageDisplay:
 
         return canvas
 
-    def update_display(self, canvas, image: Image) -> None:
+    def update_display(self, canvas: Any, image: Image) -> None:
         self.image = image
         self.make_display(canvas)
     

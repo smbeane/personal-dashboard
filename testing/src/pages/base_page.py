@@ -1,9 +1,12 @@
 from typing import Any
 
+REFRESH_TIME = 3
+
 class BasePage():
     def __init__(self, canvas: Any):
         self.canvas = canvas
-    
+        self.refresh_time = REFRESH_TIME
+            
     def init_page(self, matrix: Any) -> None:
         self.canvas.Clear()
         self._update_data()

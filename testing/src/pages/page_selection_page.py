@@ -6,9 +6,13 @@ from lib.components.grid import Grid
 PAGES_POS = (4, 2)
 PAGES_X = 10
 
+REFRESH_TIME = 0  
+
 class PageSelectionPage(BasePage):
     def __init__(self, canvas: Any, pages: List[str]) -> None:
         super().__init__(canvas)
+        self.refresh_time = REFRESH_TIME
+
         self.pages = [" " + page for page in pages]
         self.page_selection = -1
 
@@ -23,7 +27,6 @@ class PageSelectionPage(BasePage):
 
         matrix.SwapOnVSync(self.canvas)
 
-    
     def update_page(self, matrix: Any, new_selection: int) -> None:
         self._update_data(new_selection)
         self._update_display()

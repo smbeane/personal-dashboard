@@ -31,8 +31,8 @@ LONG = -86.9063623
 class Dashboard(SampleBase):
     def __init__(self, *args, **kwargs):
         super(Dashboard, self).__init__(*args, **kwargs)
-        self.currPage = None
-        self.currMode = "Home"
+        self.curr_page = None
+        self.curr_page_name = "Spotify"
         self.lastMode = "Home"
         self.user = None
         self.pressTime = 0
@@ -47,13 +47,34 @@ class Dashboard(SampleBase):
         self.canvas = self.matrix.CreateFrameCanvas()
         self.setupGPIO()
         self.curr_page = SpotifyPage(self.canvas)
+        self.curr_page_name = "Spotify" 
         self.curr_page.init_page(self.matrix)
-
-        i = 0
+        
+        refresh_loop = 0
         while True:
-            time.sleep(60)
-            self.curr_page.update_page(self.matrix)    
+            refresh_time = self.curr_page.refresh_time
+            time.sleep(refresh_time)
+            
+            refresh_loop += 1
+            print(f"{time.ctime()}: Updating Page")
+            self.update_curr_page(refresh_loop)
 
+    def update_curr_page(self, refresh_loop: int) -> None:
+        if self.curr_page_name == "Home":
+            self.curr_page.update_page(self.matrix)
+            return
+        
+        if self.curr_page_name == "Page Selection":
+            self.curr_page.update_page(self.matrix, self.new_selection)
+            return
+        
+        if self.curr_page_name == "Weather":
+            self.curr_page.update_page(self.matrix)
+            return
+        
+        if self.curr_page_name == "Spotify":
+            self.curr_page.update_page(self.matrix, refresh_loop)
+            return
 
     #TODO update typing
     def setupGPIO(self):

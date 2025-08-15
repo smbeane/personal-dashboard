@@ -23,7 +23,8 @@ class HomePage(BasePage):
     def __init__(self, canvas: Any) -> None:
         super().__init__(canvas)
         self.user: DateTimeUser = DateTimeUser()
-        
+        self.refresh_time = 60 - self.user.seconds
+
         self.time_grid: Grid = None
         self.date_grid: Grid = None
         self.clock_frame_display: ImageDisplay = None
@@ -53,6 +54,7 @@ class HomePage(BasePage):
             
     def _update_data(self) -> None:
         self.user.update_data()
+        self.refresh_time = 60 - self.user.seconds
 
     def _update_display(self) -> None:
         self.time_grid.update_and_render(self.canvas, [self.user.time, ""])
