@@ -1,16 +1,17 @@
 from typing import Tuple, Any, List
 
 from lib.letters import font
+from lib.helpers import set_character
 
 WHITE = (255, 255, 255)
 
 NOT_INITIALIZED = [[(-1, -1)]]
 
 class Grid:
-    def __init__(self, position: Tuple[int, int], dims: Tuple[int, int], grid_size: str, content: List[str], color: Tuple[int, int, int] = WHITE) -> None:
+    def __init__(self, position: Tuple[int, int], dims: Tuple[int, int], font_size: str, content: List[str], color: Tuple[int, int, int] = WHITE) -> None:
         self.x, self.y = position
         self.x_len, self.y_len = dims
-        self.grid_size = grid_size #will allow for text to be 3x5, 5x7, or larger?
+        self.font_size = font_size #will allow for text to be 3x5, 5x7, or larger?
         self.color = color
 
         self.full_content = content
@@ -22,7 +23,7 @@ class Grid:
             for x_offset, character in enumerate(line[:self.x_len]):
                 x_pos = self.x + x_offset * 4
                 y_pos = self.y + y_offset * 6
-                set_character(canvas, character, (x_pos, y_pos), self.color) 
+                set_character(canvas, self.font_size, character, (x_pos, y_pos), self.color) 
 
     def update_and_render(self, canvas: Any, updated_content: List[str]) -> None:
         updated_cells = self._update_content(updated_content, False)
@@ -92,9 +93,8 @@ class Grid:
                 continue
             character = self.offscreen_content[y][x]
             position = (self.x + x * 4, self.y + y * 6)
-            set_character(canvas, character, position, self.color)
+            set_character(canvas, self.font_size, character, position, self.color)
 
-    #TODO Fix
     def _scroll_grid_x(self, canvas: Any) -> None:
         scrolled_content = []
         all_lines_at_start = all(self.scroll_indexes[index] == 0 for index in range(len(self.scroll_indexes)))
@@ -125,18 +125,3 @@ class Grid:
         line_at_start = self.scroll_indexes[line_index] == 0
 
         return too_long and (not line_at_start or all_lines_at_start)
-
-def set_character(canvas: Any, character: str, position: Tuple[int, int], rgb: Tuple[int, int, int] = WHITE) -> None:
-    character = character.lower()
-    if character not in font:
-            character = "?"
-
-    char_arr = font[character]
-    start_x, start_y = position
-    r_on, g_on, b_on = rgb
-
-    for y in range(5):
-        for x in range(3):
-            r, g, b = (r_on, g_on, b_on) if char_arr[y][x] == 1 else (0, 0, 0)
-            
-            canvas.SetPixel(start_x + x, start_y + y, r, b, g)
