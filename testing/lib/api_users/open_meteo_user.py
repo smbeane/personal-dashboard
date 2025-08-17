@@ -49,7 +49,7 @@ class OpenMeteoUser():
         elif weather_code in (0, 1):
             todays_weather = "sun" 
         elif weather_code == 2:
-            todays_weather = "partial clouds"
+            todays_weather = "partial_clouds"
         elif weather_code in range(3, 11) or weather_code == 45:
             todays_weather = "clouds"
         elif weather_code in range(50, 70):
