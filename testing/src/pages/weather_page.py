@@ -16,7 +16,7 @@ LAT = 40.4249916
 LONG = -86.9063623
 JOINING_CHAR = "|"
 
-IMAGE_DIR = "/home/smbeane5235/spotify/extras/icons/"
+IMAGE_DIR = "../lib/images/"
 IMAGE_POS = (0, 0)
 IMAGE_SIZE = (24, 18)
 

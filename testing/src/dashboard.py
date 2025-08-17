@@ -36,16 +36,16 @@ class Dashboard(SampleBase):
     def run(self):
         self.canvas = self.matrix.CreateFrameCanvas()
         self.setupGPIO()
-        self.curr_page = PageSelectionPage(self.canvas, DASHBOARD_PAGES)
-        self.curr_page_name = "Pages" 
-        self.curr_page.init_page(self.matrix, 0)
+        self.curr_page = WeatherPage(self.canvas)
+        self.curr_page_name = "Weather" 
+        self.curr_page.init_page(self.matrix)
         
         refresh_loop = 0
         while True:
             refresh_loop += 1
             print(f"{time.ctime()}: Updating Page")
             self.update_curr_page(refresh_loop)
-            time.sleep(10)
+            time.sleep(self.curr_page.refresh_time)
 
     def update_curr_page(self, refresh_loop: int) -> None:
         if not self.curr_page:
