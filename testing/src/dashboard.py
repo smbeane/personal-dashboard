@@ -36,8 +36,8 @@ class Dashboard(SampleBase):
     def run(self):
         self.canvas = self.matrix.CreateFrameCanvas()
         self.setupGPIO()
-        self.curr_page = WeatherPage(self.canvas)
-        self.curr_page_name = "Weather" 
+        self.curr_page = SpotifyPage(self.canvas)
+        self.curr_page_name = "Spotify" 
         self.curr_page.init_page(self.matrix)
         
         refresh_loop = 0

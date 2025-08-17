@@ -38,6 +38,8 @@ class ProgressBar():
         cols_filled = int(progress * self.x_len)
 
         for x in range(self.x_pos + 1 + self.prev_cols_filled, self.x_pos + 1 + cols_filled):
+            if x >= self.x_len:
+                return
             for y in range(self.y_pos + 1, self.y_pos + self.y_len):
                 canvas.SetPixel(x, y, r, b, g)
 
