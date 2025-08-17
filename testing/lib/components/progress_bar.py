@@ -37,15 +37,15 @@ class ProgressBar():
         r, g, b = self.bar_color
         cols_filled = int(progress * self.x_len)
 
-        for x in range(self.x_pos + 1 + self.prev_cols_filled, self.x_pos + 1 + cols_filled):
+        for x in range(self.x_pos + 1 + self.prev_cols_filled, self.x_pos + cols_filled):
             if x >= self.x_pos + self.x_len:
                 return
             for y in range(self.y_pos + 1, self.y_pos + self.y_len - 1):
                 canvas.SetPixel(x, y, r, b, g)
 
-        self.prev_cols_filled = cols_filled
+        self.prev_cols_filled = cols_filled - 1
 
     def _clear_progress(self, canvas) -> None:
-        for x in range(self.x_pos + 1, self.x_pos + self.x_len):
+        for x in range(self.x_pos + 1, self.x_pos + self.x_len - 1):
             for y in range(self.y_pos + 1, self.y_pos + self.y_len - 1):
                 canvas.SetPixel(x, y, 0, 0, 0)
