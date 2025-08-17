@@ -25,8 +25,11 @@ DIVIDER_LEN = 28
 
 TODAYS_POS = (2, 19)
 TODAYS_SIZE = (5, 2)
-TEMPS_POS = (27, 4)
+TODAYS_SPACING = (1, 1)
+
+TEMPS_POS = (27, 3)
 TEMPS_SIZE = (9, 4)
+TEMPS_SPACING = (1, 2)
 
 class WeatherPage(BasePage):
     def __init__(self, canvas: Any) -> None:
@@ -93,11 +96,11 @@ class WeatherPage(BasePage):
         return grid_text
     
     def _init_blank(self) -> None:
-        self.weather_image_display = ImageDisplay(IMAGE_POS, IMAGE_SIZE, None)
-        self.todays_grid = Grid(TODAYS_POS, TODAYS_SIZE, "s", ["", ""])
+        self.weather_image_display = ImageDisplay(position=IMAGE_POS, dims=IMAGE_SIZE, image=None)
+        self.todays_grid = Grid(position=TODAYS_POS, dims=TODAYS_SIZE, spacing=TODAYS_SPACING, font_size="s", content=["", ""])
 
-        self.divider = Divider(DIVIDER_POS, DIVIDER_LEN, BLUE)
-        self.week_grid = Grid(TEMPS_POS, TEMPS_SIZE, "s", ["", "", "", ""])
+        self.divider = Divider(position=DIVIDER_POS, length=DIVIDER_LEN, color=BLUE)
+        self.week_grid = Grid(position=TEMPS_POS, dims=TEMPS_SIZE, spacing=TEMPS_SPACING, font_size="s", content=["", "", "", ""])
 
 def join_strs(first_str: int | str | None, second_str: int | str | None, joining_char: str = JOINING_CHAR) -> str:
     if not first_str:

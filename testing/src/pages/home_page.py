@@ -13,7 +13,9 @@ IMAGE_SIZE = (24, 24)
 
 GRID_SIZE = (9, 2)
 TIME_GRID_POS = (27, 4)
+TIME_GRID_SPACING = (1, 1)
 DATE_GRID_POS = (27, 17)
+DATE_GRID_SPACING = (1, 1)
 
 FILE_PATH = "../lib/images/clock_frame.png"
 MINUTE_ARM_LENGTH = 9
@@ -59,9 +61,9 @@ class HomePage(BasePage):
         render_clock_arms(self.canvas, self.user.time, CLOCK_CENTER)
 
     def _init_blank(self) -> None:
-        self.time_grid = Grid(TIME_GRID_POS, GRID_SIZE, "s", ["", ""])
-        self.date_grid = Grid(DATE_GRID_POS, GRID_SIZE, "s", ["", ""])
-        self.clock_frame_display = ImageDisplay(IMAGE_POS, IMAGE_SIZE, None)
+        self.time_grid = Grid(position=TIME_GRID_POS, dims=GRID_SIZE, spacing=TIME_GRID_SPACING, font_size="s", content=["", ""])
+        self.date_grid = Grid(position=DATE_GRID_POS, dims=GRID_SIZE, spacing=DATE_GRID_SPACING, font_size="s", content=["", ""])
+        self.clock_frame_display = ImageDisplay(position=IMAGE_POS, dims=IMAGE_SIZE, image=None)
 
 #TODO update function to a better line drawing alg
 def render_clock_arms(canvas: Any, time: str, start_pos: Tuple[int, int]) -> None:

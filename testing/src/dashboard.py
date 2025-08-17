@@ -1,6 +1,4 @@
 import time
-from datetime import datetime, timedelta
-import RPi.GPIO as GPIO
 
 from samplebase import SampleBase
 from pages.base_page import BasePage
@@ -8,7 +6,8 @@ from pages.home_page import HomePage
 from pages.weather_page import WeatherPage
 from pages.page_selection_page import PageSelectionPage
 from pages.spotify_page import SpotifyPage
-
+from pages.letter_test import LettersPage
+from lib.components.buttons import Buttons
 
 DASHBOARD_PAGES = ["Home", "Weather", "Spotify"]
 LEFT_PIN = 18
@@ -27,6 +26,7 @@ class Dashboard(SampleBase):
         self.curr_page: BasePage | None = None
         self.curr_page_name = "Spotify"
         self.page_selection = 0
+        self.buttons = Buttons(num_buttons=3, button_pins=[LEFT_PIN, MIDDLE_PIN, RIGHT_PIN])
 
         self.lastMode = "Home"
         self.pressTime = 0
@@ -35,10 +35,28 @@ class Dashboard(SampleBase):
     #TODO update pages, button actions, and typing
     def run(self):
         self.canvas = self.matrix.CreateFrameCanvas()
-        self.setupGPIO()
-        self.curr_page = SpotifyPage(self.canvas)
-        self.curr_page_name = "Spotify" 
-        self.curr_page.init_page(self.matrix)
+        self.buttons.initial_setup()
+
+        self.curr_page_name = "Spotify"
+        match self.curr_page_name:
+            case "Home":
+                self.curr_page = HomePage(self.canvas)
+                self.curr_page.init_page(self.matrix)
+            case "Weather":
+                self.curr_page = WeatherPage(self.canvas)
+                self.curr_page.init_page(self.matrix)
+            case "PageSelection":
+                self.curr_page = PageSelectionPage(self.canvas, DASHBOARD_PAGES)
+                self.curr_page.init_page(self.matrix, 0)
+            case "Spotify":
+                self.curr_page = SpotifyPage(self.canvas)
+                self.curr_page.init_page(self.matrix)
+            case "LettersTest":
+                self.curr_page = LettersPage(self.canvas, "s")
+                self.curr_page.init_page(self.matrix)
+            case _:
+                self.curr_page = HomePage(self.canvas)
+                self.curr_page.init_page(self.matrix)
         
         refresh_loop = 0
         while True:
@@ -68,26 +86,10 @@ class Dashboard(SampleBase):
             return
 
     #TODO update typing
-    def setupGPIO(self):
-        GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(LEFT_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.setup(MIDDLE_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.setup(RIGHT_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.add_event_detect(
-            LEFT_PIN, GPIO.FALLING, callback=self.buttonActions, bouncetime=200
-        )
-        GPIO.add_event_detect(
-            MIDDLE_PIN, GPIO.FALLING, callback=self.buttonActions, bouncetime=200
-        )
-        GPIO.add_event_detect(
-            RIGHT_PIN, GPIO.BOTH, callback=self.buttonActions, bouncetime=200
-        )
-
-    #TODO update typing
     def destroy(self):
         self.canvas.Clear()
         self.canvas = self.matrix.SwapOnVSync(self.canvas)
-        GPIO.cleanup()
+        self.buttons.cleanup()
 
     #TODO update button actions to be page specific
     def buttonActions(self, channel):
@@ -104,66 +106,66 @@ class Dashboard(SampleBase):
             print("Not sure what button was pressed")
         
         # Back button was released
-        if channel == LEFT_PIN:
+        # if channel == LEFT_PIN:
 
-            if self.curr_page_name == "Spotify":
-                print("Previous Song")
-                self.curr_page.alter_playback("previous") #type: ignore
-                return
+        #     if self.curr_page_name == "Spotify":
+        #         print("Previous Song")
+        #         self.curr_page.alter_playback("previous") #type: ignore
+        #         return
 
-            if self.curr_page_name == "Pages":
-                self.page_selection = self.page_selection - 1 if self.selection != 0 else len(DASHBOARD_PAGES) - 1
-                self.curr_page.update_page(self.matrix, self.page_selection)
-                return
+        #     if self.curr_page_name == "Pages":
+        #         self.page_selection = self.page_selection - 1 if self.selection != 0 else len(DASHBOARD_PAGES) - 1
+        #         self.curr_page.update_page(self.matrix, self.page_selection)
+        #         return
             
-            #TODO add weather page scrolling by the day
-            if self.curr_page_name == "Weather":
-                print("This will be where people can change the weather")
-                return    
+        #     #TODO add weather page scrolling by the day
+        #     if self.curr_page_name == "Weather":
+        #         print("This will be where people can change the weather")
+        #         return    
         
-        if channel == MIDDLE_PIN:
-            if GPIO.input(MIDDLE_PIN) == GPIO.LOW: #Button was pressed
-                print("Middle button was pressed")
-            else: 
-                print("Middle button was released")
+        # if channel == MIDDLE_PIN:
+        #     if GPIO.input(MIDDLE_PIN) == GPIO.LOW: #Button was pressed
+        #         print("Middle button was pressed")
+        #     else: 
+        #         print("Middle button was released")
         
-        # Next button was released
-        if channel == RIGHT_PIN:
-            if self.curr_page_name == "Spotify":
-                print("Previous Song")
-                self.curr_page.alter_playback("next") #type: ignore
-                return
+        # # Next button was released
+        # if channel == RIGHT_PIN:
+        #     if self.curr_page_name == "Spotify":
+        #         print("Previous Song")
+        #         self.curr_page.alter_playback("next") #type: ignore
+        #         return
 
-            elif self.curr_page_name == "Pages":
-                self.selection = self.selection + 1 if self.selection != len(DASHBOARD_PAGES) - 1 else 0
-                self.curr_page.update_page(self.matrix, self.page_selection)
+        #     elif self.curr_page_name == "Pages":
+        #         self.selection = self.selection + 1 if self.selection != len(DASHBOARD_PAGES) - 1 else 0
+        #         self.curr_page.update_page(self.matrix, self.page_selection)
 
-        # elif channel == MIDDLE_PIN and GPIO.input(MIDDLE_PIN) == 0:
-        #     self.pressTime = datetime.now()
-        #
-        # elif channel == MIDDLE_PIN and GPIO.input(MIDDLE_PIN) == 1:
-        #     releaseTime = datetime.now()
-        #     holdTime = releaseTime - self.pressTime
+        # # elif channel == MIDDLE_PIN and GPIO.input(MIDDLE_PIN) == 0:
+        # #     self.pressTime = datetime.now()
+        # #
+        # # elif channel == MIDDLE_PIN and GPIO.input(MIDDLE_PIN) == 1:
+        # #     releaseTime = datetime.now()
+        # #     holdTime = releaseTime - self.pressTime
 
-        #     # button was held, opens the pages tab
-        #     if holdTime >= timedelta(seconds=0.75) and self.currMode != "Pages":
-        #         print("Middle Button Held")
-        #         self.currMode = "Pages"
-        #         self.keepRunning = False
+        # #     # button was held, opens the pages tab
+        # #     if holdTime >= timedelta(seconds=0.75) and self.currMode != "Pages":
+        # #         print("Middle Button Held")
+        # #         self.currMode = "Pages"
+        # #         self.keepRunning = False
 
-        #     elif self.currMode == "Spotify":
-        #         if self.user.playbackState["is_playing"]:
-        #             self.user.alterPlayback("pause")
-        #         else:
-        #             self.user.alterPlayback("play")
-        #         self.user.updatePlayback()
-        #     elif self.currMode == "Pages":
-        #         self.currMode = DASHBOARD_STATES[self.selection]
-        #         self.keepRunning = False
+        # #     elif self.currMode == "Spotify":
+        # #         if self.user.playbackState["is_playing"]:
+        # #             self.user.alterPlayback("pause")
+        # #         else:
+        # #             self.user.alterPlayback("play")
+        # #         self.user.updatePlayback()
+        # #     elif self.currMode == "Pages":
+        # #         self.currMode = DASHBOARD_STATES[self.selection]
+        # #         self.keepRunning = False
 
-        # ???
-        else:
-            print("{channel} Pressed")
+        # # ???
+        # else:
+        #     print("{channel} Pressed")
 
 if __name__ == "__main__":
     dashboard: Dashboard | None = None    

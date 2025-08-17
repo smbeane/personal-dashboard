@@ -1,17 +1,32 @@
 from typing import Tuple, Any, List
 
-from lib.letters import font
 from lib.helpers import set_character
 
 WHITE = (255, 255, 255)
 
 NOT_INITIALIZED = [(-1, -1)]
 
+SMALL = (3, 5)
+MEDIUM = (4, 6)
+LARGE = (5, 7)
+
+
 class Grid:
-    def __init__(self, position: Tuple[int, int], dims: Tuple[int, int], font_size: str, content: List[str], color: Tuple[int, int, int] = WHITE) -> None:
+    def __init__(self, position: Tuple[int, int], dims: Tuple[int, int], spacing: Tuple[int, int], content: List[str], font_size: str = "s", color: Tuple[int, int, int] = WHITE) -> None:
         self.x, self.y = position
         self.x_len, self.y_len = dims
-        self.font_size = font_size #will allow for text to be 3x5, 5x7, or larger?
+        self.font_size = font_size
+        match font_size:
+            case "s":
+                self.char_width, self.char_height = SMALL
+            case "m":
+                self.char_width, self.char_height = MEDIUM
+            case "l":
+                self.char_width, self.char_height = LARGE
+            case _:
+                self.char_width, self.char_height = SMALL
+
+        self.x_spacing, self.y_spacing = spacing
         self.color = color
 
         self.full_content = content
@@ -21,8 +36,7 @@ class Grid:
     def initial_render(self, canvas) -> None:
         for y_offset, line in enumerate(self.offscreen_content[:self.y_len]):
             for x_offset, character in enumerate(line[:self.x_len]):
-                x_pos = self.x + x_offset * 4
-                y_pos = self.y + y_offset * 6
+                x_pos, y_pos = self._get_position(x_offset, y_offset)
                 set_character(canvas, self.font_size, character, (x_pos, y_pos), self.color) 
 
     def update_and_render(self, canvas: Any, updated_content: List[str]) -> None:
@@ -92,7 +106,7 @@ class Grid:
             if x >= self.x_len or y >= self.y_len:
                 continue
             character = self.offscreen_content[y][x]
-            position = (self.x + x * 4, self.y + y * 6)
+            position = self._get_position(x, y)
             set_character(canvas, self.font_size, character, position, self.color)
 
     def _scroll_grid_x(self, canvas: Any) -> None:
@@ -100,7 +114,6 @@ class Grid:
         all_lines_at_start = all(self.scroll_indexes[index] == 0 for index in range(len(self.scroll_indexes)))
 
         for index, line in enumerate(self.offscreen_content[:self.y_len]):
-            
             if self._line_needs_scrolled(line, index, all_lines_at_start):
                 scroll_index = self.scroll_indexes[index]
                 scrolled_line = f"{''.join(line[1:])}{line[0]}"
@@ -125,3 +138,9 @@ class Grid:
         line_at_start = self.scroll_indexes[line_index] == 0
 
         return too_long and (not line_at_start or all_lines_at_start)
+
+    def _get_position(self, x_offset: int, y_offset: int) -> Tuple[int, int]:
+          x_pos = self.x + x_offset * (self.x_spacing + self.char_width)
+          y_pos = self.y + y_offset * (self.y_spacing + self.char_height)
+
+          return (x_pos, y_pos)

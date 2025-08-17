@@ -19,12 +19,14 @@ COVER_SIZE = (24, 24)
 
 NAMES_POS = (27, 6)
 NAMES_SIZE = (9, 2)
+NAMES_SPACING = (1, 2)
 
 PROGRESS_POS = (27, 21)
-PROGRESS_SIZE = (34, 5)
+PROGRESS_SIZE = (35, 6)
 
 NO_DEVICES_POS = (7, 13)
 NO_DEVICES_SIZE = (16, 1)
+NO_DEVICES_SPACING = (1, 1)
 
 class SpotifyPage(BasePage):
     def __init__(self, canvas):
@@ -105,18 +107,18 @@ class SpotifyPage(BasePage):
  
     def _no_devices(self) -> None:
         self.canvas.Clear()
-        no_devices_grid = Grid(NO_DEVICES_POS, NO_DEVICES_SIZE, "s", ["no devices on"])
+        no_devices_grid = Grid(position=NO_DEVICES_POS, dims=NO_DEVICES_SIZE, spacing=NO_DEVICES_SPACING, font_size="s", content=["no devices on"])
         no_devices_grid.initial_render(self.canvas)
     
     def _error(self) -> None:
         self.canvas.Clear()
-        error_grid = Grid(NO_DEVICES_POS, NO_DEVICES_SIZE, "s", ["update errors"])
+        error_grid = Grid(position=NO_DEVICES_POS, dims=NO_DEVICES_SIZE, spacing=NO_DEVICES_SPACING, font_size="s", content=["update errors"])
         error_grid.initial_render(self.canvas)
     
     def _init_blank(self) -> None:
-        self.names_grid = Grid(NAMES_POS, NAMES_SIZE, "s", ["", ""])
-        self.album_display = ImageDisplay(COVER_POS, COVER_SIZE, None)
-        self.progress_bar = ProgressBar(PROGRESS_POS, PROGRESS_SIZE, WHITE, BLUE)
+        self.names_grid = Grid(position=NAMES_POS, dims=NAMES_SIZE, spacing=NAMES_SPACING, font_size="s", content=["", ""])
+        self.album_display = ImageDisplay(position=COVER_POS, dims=COVER_SIZE, image=None)
+        self.progress_bar = ProgressBar(position=PROGRESS_POS, dims=PROGRESS_SIZE, border_color=WHITE, bar_color=BLUE)
 
     def alter_playback(self, alteration: str) -> None:
         pass

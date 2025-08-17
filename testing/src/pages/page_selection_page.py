@@ -5,6 +5,7 @@ from lib.components.grid import Grid
 
 PAGES_POS = (4, 2)
 PAGES_X = 10
+PAGES_SPACING = (1, 2)
 
 REFRESH_TIME = 0  
 
@@ -46,5 +47,5 @@ class PageSelectionPage(BasePage):
         self.pages_grid.update_and_render(self.canvas, self.pages)
 
     def _init_blank(self) -> None:
-        self.pages_grid = Grid(PAGES_POS, (PAGES_X, len(self.pages)), "s", [""] * len(self.pages))
+        self.pages_grid = Grid(position=PAGES_POS, dims=(PAGES_X, len(self.pages)), spacing=PAGES_SPACING, font_size="s", content=[""] * len(self.pages))
     

@@ -9,27 +9,26 @@ from lib.letters import small_font, medium_font, large_font
 WHITE = (255, 255, 255)
 BLUE = (63, 81, 181)
 
+SMALL = (3, 5)
+MEDIUM = (4, 6)
+LARGE = (5, 7)
+
 def set_character(canvas: Any, size: str, character: str, position: Tuple[int, int], rgb: Tuple[int, int, int] = WHITE):
     character = character.lower()   
 
     match size:
         case "s":
             font = small_font
-            width = 3
-            height = 5
+            width, height = SMALL
         case "m":
             font = medium_font
-            width = 4
-            height = 6
+            width, height = MEDIUM
         case "l":
             font = large_font
-            width = 5
-            height = 7
-
+            width, height = LARGE
         case _:
             font = small_font
-            width = 3
-            height = 5
+            width, height = SMALL
     
     if character not in font:
         character = "?"
