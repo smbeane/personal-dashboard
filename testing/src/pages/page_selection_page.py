@@ -16,14 +16,13 @@ class PageSelectionPage(BasePage):
         self.pages = [" " + page for page in pages]
         self.page_selection = -1
 
-        self.pages_grid: Grid = None
+        self._init_blank()
 
     def init_page(self, matrix: Any, selection: int) -> None:
         self.canvas.Clear()
         self._update_data(selection)
 
-        self.pages_grid = Grid(PAGES_POS, (PAGES_X, len(self.pages)), "s", self.pages)
-        self.pages_grid.initial_render(self.canvas)
+        self.pages_grid.update_and_render(self.canvas, self.pages)
 
         matrix.SwapOnVSync(self.canvas)
 
@@ -45,4 +44,7 @@ class PageSelectionPage(BasePage):
 
     def _update_display(self) -> None:
         self.pages_grid.update_and_render(self.canvas, self.pages)
+
+    def _init_blank(self) -> None:
+        self.pages_grid = Grid(PAGES_POS, (PAGES_X, len(self.pages)), "s", [""] * len(self.pages))
     

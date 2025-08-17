@@ -1,4 +1,3 @@
-from PIL import Image
 import math
 from typing import Tuple, Any
 
@@ -6,14 +5,15 @@ from pages.base_page import BasePage
 from lib.components.grid import Grid
 from lib.components.image_display import ImageDisplay
 from lib.api_users.datetime_user import DateTimeUser
+from lib.helpers import get_image
 
 IMAGE_POS = (1, 4)
 CLOCK_CENTER = (11, 14)
 IMAGE_SIZE = (24, 24)
 
 GRID_SIZE = (9, 2)
-TIME_GRID_POS = (28, 4)
-DATE_GRID_POS = (28, 17)
+TIME_GRID_POS = (27, 4)
+DATE_GRID_POS = (27, 17)
 
 FILE_PATH = "../lib/images/clock_frame.png"
 MINUTE_ARM_LENGTH = 9
@@ -25,23 +25,17 @@ class HomePage(BasePage):
         self.user: DateTimeUser = DateTimeUser()
         self.refresh_time = 60 - self.user.seconds
 
-        self.time_grid: Grid = None
-        self.date_grid: Grid = None
-        self.clock_frame_display: ImageDisplay = None
+        self._init_blank()
 
     def init_page(self, matrix: Any) -> None:
         self.canvas.Clear()
         self._update_data()
 
-        self.time_grid = Grid(TIME_GRID_POS, GRID_SIZE, "s", [self.user.time, ""])
-        self.time_grid.initial_render(self.canvas)
-        
-        self.date_grid = Grid(DATE_GRID_POS, GRID_SIZE, "s", [self.user.year, self.user.day_and_date])
-        self.date_grid.initial_render(self.canvas)
+        self.time_grid.update_and_render(self.canvas, [self.user.time, ""])
+        self.date_grid.update_and_render(self.canvas, [self.user.year, self.user.day_and_date])
 
         clock_frame_image = get_image(FILE_PATH)
-        self.clock_frame_display = ImageDisplay(IMAGE_POS, IMAGE_SIZE, clock_frame_image)
-        self.clock_frame_display.make_display(self.canvas)
+        self.clock_frame_display.update_display(self.canvas, clock_frame_image)
         render_clock_arms(self.canvas, self.user.time, CLOCK_CENTER)
 
         matrix.SwapOnVSync(self.canvas)
@@ -64,10 +58,10 @@ class HomePage(BasePage):
         self.clock_frame_display.make_display(self.canvas)
         render_clock_arms(self.canvas, self.user.time, CLOCK_CENTER)
 
-def get_image(ref: str) -> Image.Image: 
-    image = Image.open(ref)
-
-    return image
+    def _init_blank(self) -> None:
+        self.time_grid = Grid(TIME_GRID_POS, GRID_SIZE, "s", ["", ""])
+        self.date_grid = Grid(DATE_GRID_POS, GRID_SIZE, "s", ["", ""])
+        self.clock_frame_display = ImageDisplay(IMAGE_POS, IMAGE_SIZE, None)
 
 #TODO update function to a better line drawing alg
 def render_clock_arms(canvas: Any, time: str, start_pos: Tuple[int, int]) -> None:

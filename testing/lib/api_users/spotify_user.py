@@ -1,3 +1,5 @@
+from typing import Dict
+
 from lib.api_users.spotify_api import SpotifyAPI
 
 class SpotifyUser():
@@ -27,7 +29,7 @@ class SpotifyUser():
             return 200
 
         self.raw_playback = updated_raw
-        parsed_playback = self._get_parsed_playback(updated_raw)
+        parsed_playback = self._get_parsed_playback(updated_raw) #type: ignore
         
         if self._song_changed(parsed_playback):
             self.parsed_playback = parsed_playback
@@ -37,15 +39,15 @@ class SpotifyUser():
             self.parsed_playback = parsed_playback
             return 201
 
-    def _get_parsed_playback(self, raw_data: dict):
+    def _get_parsed_playback(self, raw_data: Dict[str, Dict]):
         song = raw_data["item"]
         
         song_name = song["name"]
         artist_name = song["artists"][0]["name"]
         album_cover_url = song["album"]["images"][0]["url"]
         
-        duration = song["duration_ms"]
-        progress_ms = raw_data["progress_ms"]
+        duration = int(song["duration_ms"])
+        progress_ms: str = raw_data["progress_ms"] #type: ignore
 
         progress = float(progress_ms) / duration
 

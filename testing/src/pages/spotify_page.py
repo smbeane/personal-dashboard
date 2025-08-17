@@ -8,10 +8,11 @@ from lib.api_users.spotify_user import SpotifyUser
 from lib.components.grid import Grid
 from lib.components.image_display import ImageDisplay
 from lib.components.progress_bar import ProgressBar
+from lib.helpers import retrieve_url_image
 
 REFRESH_TIME = 1
-WHITE = [255, 255, 255]
-BLUE = [63, 81, 181]
+WHITE = (255, 255, 255)
+BLUE = (63, 81, 181)
 
 COVER_POS = (2, 4)
 COVER_SIZE = (24, 24)
@@ -25,8 +26,6 @@ PROGRESS_SIZE = (34, 5)
 NO_DEVICES_POS = (7, 13)
 NO_DEVICES_SIZE = (16, 1)
 
-
-
 class SpotifyPage(BasePage):
     def __init__(self, canvas):
         super().__init__(canvas)
@@ -35,28 +34,19 @@ class SpotifyPage(BasePage):
         self.user = SpotifyUser()
         self.update_code = 0
 
-        self.album_display: ImageDisplay = None
-        self.names_grid: Grid = None
-        self.progress_bar: ProgressBar = None
+        self._init_blank()
 
     def init_page(self, matrix: Any) -> None:
         self.canvas.Clear()
         self.update_code = self._update_data()
 
         if self.update_code == 204:
-            self.names_grid = Grid(NAMES_POS, NAMES_SIZE, "s", ["", ""])
-            self.album_display = ImageDisplay(COVER_POS, COVER_SIZE, None)
-            self.progress_bar = ProgressBar(PROGRESS_POS, PROGRESS_SIZE, WHITE, BLUE)
-
             self._no_devices()
             matrix.SwapOnVSync(self.canvas)
             return
         
         if self.update_code == 400:
-            self.names_grid = Grid(NAMES_POS, NAMES_SIZE, "s", ["", ""])
-            self.album_display = ImageDisplay(COVER_POS, COVER_SIZE, None)
-            self.progress_bar = ProgressBar(PROGRESS_POS, PROGRESS_SIZE, WHITE, BLUE)
-            
+
             self._error()
             matrix.SwapOnVSync(self.canvas)
             return
@@ -66,33 +56,31 @@ class SpotifyPage(BasePage):
         progress = self.user.parsed_playback["progress"]
         cover_url = self.user.parsed_playback["album_cover_url"]
 
-        self.names_grid = Grid(NAMES_POS, NAMES_SIZE, "s", [song, artist])
-        self.names_grid.initial_render(self.canvas)
 
+        self.names_grid.update_and_render(self.canvas, [song, artist])
+        
         cover_image = retrieve_url_image(cover_url)
-        self.album_display = ImageDisplay(COVER_POS, COVER_SIZE, cover_image)
-        self.album_display.make_display(self.canvas)
+        self.album_display.update_display(self.canvas, cover_image)
 
-        self.progress_bar = ProgressBar(PROGRESS_POS, PROGRESS_SIZE, WHITE, BLUE)
-        self.progress_bar.initial_render(self.canvas, progress)
+        self.progress_bar.initial_render(self.canvas, progress)    
 
         matrix.SwapOnVSync(self.canvas)
         
     def update_page(self, matrix: Any, refresh_loop: int) -> None:
         if refresh_loop % 3 == 0:
             self.update_code = self._update_data()
-        self._update_display()
+        self._update_display(matrix)
 
         matrix.SwapOnVSync(self.canvas)
 
-    def _update_data(self) -> bool:
+    def _update_data(self) -> int:
         updated = self.user.update_data()
 
         return updated
     
-    def _update_display(self) -> None:
+    def _update_display(self, matrix) -> None:
         if self.update_code == 0:
-            self.init_page()
+            self.init_page(matrix)
 
         if self.update_code == 400:
             self._error()
@@ -114,8 +102,7 @@ class SpotifyPage(BasePage):
 
             cover_image = retrieve_url_image(cover_url)
             self.album_display.update_display(self.canvas, cover_image)
-
-        
+ 
     def _no_devices(self) -> None:
         self.canvas.Clear()
         no_devices_grid = Grid(NO_DEVICES_POS, NO_DEVICES_SIZE, "s", ["no devices on"])
@@ -126,16 +113,10 @@ class SpotifyPage(BasePage):
         error_grid = Grid(NO_DEVICES_POS, NO_DEVICES_SIZE, "s", ["update errors"])
         error_grid.initial_render(self.canvas)
     
+    def _init_blank(self) -> None:
+        self.names_grid = Grid(NAMES_POS, NAMES_SIZE, "s", ["", ""])
+        self.album_display = ImageDisplay(COVER_POS, COVER_SIZE, None)
+        self.progress_bar = ProgressBar(PROGRESS_POS, PROGRESS_SIZE, WHITE, BLUE)
 
-def retrieve_url_image(album_cover: str) -> Image.Image:
-    response = requests.get(album_cover)
-
-    if response.ok:
-        image = Image.open(BytesIO(response.content))
-        image = image.resize((24, 24))
-
-        return image
-
-    else:
-        print("Failed to download image:", response.status_code)
-        return None
+    def alter_playback(self, alteration: str) -> None:
+        pass

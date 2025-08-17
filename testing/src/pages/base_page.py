@@ -7,7 +7,7 @@ class BasePage():
         self.canvas = canvas
         self.refresh_time = REFRESH_TIME
             
-    def init_page(self, matrix: Any) -> None:
+    def init_page(self, matrix: Any, *args: Any, **kwargs: Any,) -> Any:
         self.canvas.Clear()
         self._update_data()
 
@@ -15,16 +15,16 @@ class BasePage():
 
         matrix.SwapOnVSync(self.canvas)
         
-    def update_page(self, matrix: Any) -> None:        
+    def update_page(self, matrix: Any, *args: Any, **kwargs: Any) -> Any:        
         self._update_data()
         self._update_display()
 
         matrix.SwapOnVSync(self.canvas)
 
-    def _update_data(self) -> None:
+    def _update_data(self, *args: Any, **kwargs: Any) -> Any:
         pass
 
-    def _update_display(self) -> None:
+    def _update_display(self, *args: Any, **kwargs: Any) -> Any:
         pass
 
     

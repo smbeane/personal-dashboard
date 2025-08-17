@@ -1,9 +1,9 @@
 from PIL.Image import Image
-from typing import Any
+from typing import Tuple, Any
 BLACK = (0, 0, 0)
 
 class ImageDisplay: 
-    def __init__(self, position: tuple[int, int], dims: tuple[int, int], image: Image) -> None: 
+    def __init__(self, position: Tuple[int, int], dims: Tuple[int, int], image: Image | None) -> None: 
         self.position = position
         self.dims = dims
         self.image = image
@@ -14,8 +14,8 @@ class ImageDisplay:
         
         if self.image == None:
             return
-
-        allpixels = list(self.image.getdata())
+        
+        allpixels = list(self.image.getdata()) #type: ignore
 
         for y in range(0, length_y):
             for x in range(0, length_x):
@@ -24,7 +24,10 @@ class ImageDisplay:
 
         return canvas
 
-    def update_display(self, canvas: Any, image: Image) -> None:
+    def update_display(self, canvas: Any, image: Image | None) -> None:
+        if image == None:
+            return
+        
         self.image = image
         self.make_display(canvas)
     

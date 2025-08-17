@@ -1,5 +1,6 @@
 import requests
 import base64
+from typing import Dict
 
 from lib.spotify_secrets import CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN
 
@@ -13,7 +14,7 @@ class SpotifyAPI():
         self.client_secret = CLIENT_SECRET
         self.access_token = self._get_access_token()
 
-    def get_playback(self) -> dict | str:
+    def get_playback(self) -> Dict[str, str] | str:
         headers = {"Authorization": "Bearer " + self.access_token}
 
         response = requests.get(url=PLAYBACK_URL, headers=headers)

@@ -1,11 +1,11 @@
 import requests
-from typing import Dict, Any
+from typing import Any, List, Dict
 
 URL = "https://api.open-meteo.com/v1/forecast"
 HEADERS = {"Content-Type": "application/json"}
 
 class OpenMeteoUser():
-    def __init__(self, latitude: int, longitude: int, ):
+    def __init__(self, latitude: float, longitude: float):
         self.latitude = latitude
         self.longitude = longitude
         self.error = False
@@ -15,20 +15,20 @@ class OpenMeteoUser():
 
     def update_data(self) -> None:
         weather_data = self._get_data()
-        self.todays_weather = weather_data["todays_weather"]
+        self.todays_weather: str = weather_data["todays_weather"]
         
         if self.todays_weather == "Weather API Error":
-            self.todays_low = None
+            self.todays_low: int | None = None
             self.todays_high = None
             self.low_temps = None
             self.high_temps = None
             self.error = True
         else:
-            self.todays_low = weather_data["low_temps"][0]            
-            self.todays_high = weather_data["high_temps"][0]
-            self.low_temps = weather_data["low_temps"][1:]
-            self.high_temps = weather_data["high_temps"][1:]
-            self.error = False
+            self.todays_low: int | None = weather_data["low_temps"][0]            
+            self.todays_high: int | None = weather_data["high_temps"][0]
+            self.low_temps: List[int] | None = weather_data["low_temps"][1:]
+            self.high_temps: List[int] | None = weather_data["high_temps"][1:]
+            self.error: bool = False
         
     def _get_data(self) -> Dict[str, Any]:
         weather_json = self._get_weather_json()

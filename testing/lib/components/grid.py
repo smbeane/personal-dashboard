@@ -5,7 +5,7 @@ from lib.helpers import set_character
 
 WHITE = (255, 255, 255)
 
-NOT_INITIALIZED = [[(-1, -1)]]
+NOT_INITIALIZED = [(-1, -1)]
 
 class Grid:
     def __init__(self, position: Tuple[int, int], dims: Tuple[int, int], font_size: str, content: List[str], color: Tuple[int, int, int] = WHITE) -> None:

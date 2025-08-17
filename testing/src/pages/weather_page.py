@@ -8,6 +8,8 @@ from lib.components.image_display import ImageDisplay
 from lib.components.divider import Divider
 from lib.api_users.open_meteo_user import OpenMeteoUser
 
+from lib.helpers import get_image, get_days, BLUE
+
 REFRESH_TIME = 30 * 60
 
 LAT = 40.4249916
@@ -18,7 +20,6 @@ IMAGE_DIR = "/home/smbeane5235/spotify/extras/icons/"
 IMAGE_POS = (0, 0)
 IMAGE_SIZE = (24, 18)
 
-BLUE = [63, 81, 181]
 DIVIDER_POS = (24, 2)
 DIVIDER_LEN = 28
 
@@ -37,28 +38,23 @@ class WeatherPage(BasePage):
         self.weather_changed = False
         self.days = []
         
-        self.weather_image_display: ImageDisplay = None
-        self.todays_grid: Grid = None
-        self.week_grid: Grid = None
+        self._init_blank()
 
     def init_page(self, matrix: Any) -> None:
         self.canvas.Clear()
         self._update_data()
         
-        weather_image = get_image(self.image_url)
-        self.weather_image_display = ImageDisplay(IMAGE_POS, IMAGE_SIZE, weather_image)
-        self.weather_image_display.make_display(self.canvas)
+        if self.image_url:
+            weather_image = get_image(self.image_url)
+            self.weather_image_display.update_display(self.canvas, weather_image)
 
-        divider = Divider(DIVIDER_POS, DIVIDER_LEN, BLUE)
-        divider.render_divider(self.canvas)
+        self.divider.render_divider(self.canvas)
 
         temps = join_strs(self.user.todays_low, self.user.todays_high)
-        self.todays_grid = Grid(TODAYS_POS, TODAYS_SIZE, "s", ["today", temps])
-        self.todays_grid.initial_render(self.canvas)
+        self.todays_grid.update_and_render(self.canvas, ["today", temps])
 
         grid_text = self._get_grid_text()
-        self.week_grid = Grid(TEMPS_POS, TEMPS_SIZE, "s", grid_text)
-        self.week_grid.initial_render(self.canvas)
+        self.week_grid.update_and_render(self.canvas, grid_text)
 
         matrix.SwapOnVSync(self.canvas)
     
@@ -76,9 +72,10 @@ class WeatherPage(BasePage):
         
 
     def _update_display(self) -> None:
-        weather_image = get_image(self.image_url)
-        self.weather_image_display.update_display(weather_image)
-
+        if self.image_url:
+            weather_image = get_image(self.image_url)
+            self.weather_image_display.update_display(self.canvas, weather_image)
+        
         self.todays_grid.update_and_render(self.canvas, ["today", join_strs(self.user.todays_low, self.user.todays_high)])
 
         grid_text = self._get_grid_text()
@@ -87,26 +84,28 @@ class WeatherPage(BasePage):
     def _get_grid_text(self) -> List[str]:
         grid_text = []
         
-        for i in range(0, 4):
-            joined_temps = join_strs(self.user.low_temps[i], self.user.high_temps[i])
-            day_and_temps = " ".join([self.days[i], joined_temps])
-            grid_text.append(day_and_temps)
+        if self.user.low_temps and self.user.high_temps:
+            for i in range(0, 4):
+                joined_temps = join_strs(self.user.low_temps[i], self.user.high_temps[i])
+                day_and_temps = " ".join([self.days[i], joined_temps])
+                grid_text.append(day_and_temps)
 
         return grid_text
+    
+    def _init_blank(self) -> None:
+        self.weather_image_display = ImageDisplay(IMAGE_POS, IMAGE_SIZE, None)
+        self.todays_grid = Grid(TODAYS_POS, TODAYS_SIZE, "s", ["", ""])
 
-def join_strs(first_str: int | str, second_str: int | str, joining_char: str = JOINING_CHAR) -> str:
+        self.divider = Divider(DIVIDER_POS, DIVIDER_LEN, BLUE)
+        self.week_grid = Grid(TEMPS_POS, TEMPS_SIZE, "s", ["", "", "", ""])
+
+def join_strs(first_str: int | str | None, second_str: int | str | None, joining_char: str = JOINING_CHAR) -> str:
+    if not first_str:
+        return str(second_str)
+    
+    if not second_str:
+        return str(first_str)
+    
     first_str = str(first_str).zfill(2)
     second_str = str(second_str).zfill(2)
     return f"{first_str}{joining_char}{second_str}"
-
-def get_days() -> List[str]:
-    days_all = ["mon","tue","wed","thu","fri","sat","sun"]
-    today_index = datetime.now().weekday()
-    
-    return [days_all[(today_index + i) % 7] for i in range(5)]
-
-def get_image(ref: str) -> Image.Image: 
-    image = Image.open(ref)
-
-    return image
-
