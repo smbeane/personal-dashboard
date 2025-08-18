@@ -10,6 +10,7 @@ SMALL = (3, 5)
 MEDIUM = (4, 6)
 LARGE = (5, 7)
 
+SCROLL_PAUSE = 3
 
 class Grid:
     def __init__(self, position: Tuple[int, int], dims: Tuple[int, int], spacing: Tuple[int, int], content: List[str], font_size: str = "s", color: Tuple[int, int, int] = WHITE) -> None:
@@ -32,6 +33,7 @@ class Grid:
         self.full_content = content
         self.offscreen_content = self._init_content(content)
         self.scroll_indexes = [0] * len(self.offscreen_content)
+        self.scroll_pause = 0
 
     def initial_render(self, canvas) -> None:
         for y_offset, line in enumerate(self.offscreen_content[:self.y_len]):
@@ -113,8 +115,19 @@ class Grid:
         scrolled_content = []
         all_lines_at_start = all(self.scroll_indexes[index] == 0 for index in range(len(self.scroll_indexes)))
 
+        if all_lines_at_start and self.scroll_pause < SCROLL_PAUSE:
+            pause_scrolling = True
+            self.scroll_pause += 1
+        elif all_lines_at_start:
+            self.scroll_pause = 0
+            pause_scrolling = False
+        else:
+            pause_scrolling = False
+
+
         for index, line in enumerate(self.offscreen_content[:self.y_len]):
-            if self._line_needs_scrolled(line, index, all_lines_at_start):
+            
+            if self._line_needs_scrolled(line, index, all_lines_at_start) and not pause_scrolling:
                 scroll_index = self.scroll_indexes[index]
                 scrolled_line = f"{''.join(line[1:])}{line[0]}"
                 
