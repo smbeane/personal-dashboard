@@ -58,13 +58,11 @@ class SpotifyPage(BasePage):
         progress = self.user.parsed_playback["progress"]
         cover_url = self.user.parsed_playback["album_cover_url"]
 
-
         self.names_grid.update_and_render(self.canvas, [song, artist])
+        self.progress_bar.initial_render(self.canvas, progress)    
         
         cover_image = retrieve_url_image(cover_url)
         self.album_display.update_display(self.canvas, cover_image)
-
-        self.progress_bar.initial_render(self.canvas, progress)    
 
         matrix.SwapOnVSync(self.canvas)
         

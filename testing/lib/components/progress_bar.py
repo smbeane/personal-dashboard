@@ -10,17 +10,28 @@ class ProgressBar():
         self.bar_color = bar_color
         self.prev_cols_filled = 0
 
+        self.initially_rendered = False
+
     def initial_render(self, canvas: Any, progress: float) -> None:
         self._render_border(canvas)
-        self._render_progress(canvas, progress)
+
+        cols_filled = int(progress * (self.x_len - 1))
+        self._render_progress(canvas, cols_filled)
+
+        self.initially_rendered = True
 
     def update_progress(self, canvas: Any, progress: float) -> None:
-        new_cols_filled = int(progress * self.x_len)
+        if not self.initially_rendered:
+            self.initial_render(canvas, progress)
+            return
+        
+        new_cols_filled = int(progress * (self.x_len - 1))
+
         if self.prev_cols_filled > new_cols_filled:
             self._clear_progress(canvas)
             self.prev_cols_filled = 0
 
-        self._render_progress(canvas, progress)
+        self._render_progress(canvas, new_cols_filled)
 
     def _render_border(self, canvas) -> None:
         r, g, b = self.border_color
@@ -33,17 +44,16 @@ class ProgressBar():
                 for y in range(self.y_pos, self.y_pos + self.y_len):
                     canvas.SetPixel(x, y, r, b, g)
 
-    def _render_progress(self, canvas: Any, progress: float) -> None:
+    def _render_progress(self, canvas: Any, cols_filled: int) -> None:
         r, g, b = self.bar_color
-        cols_filled = int(progress * self.x_len)
 
-        for x in range(self.x_pos + 1 + self.prev_cols_filled, self.x_pos + cols_filled):
+        for x in range(self.x_pos + 1 + self.prev_cols_filled, self.x_pos + 1 + cols_filled):
             if x >= self.x_pos + self.x_len:
                 return
             for y in range(self.y_pos + 1, self.y_pos + self.y_len - 1):
                 canvas.SetPixel(x, y, r, b, g)
 
-        self.prev_cols_filled = cols_filled - 1
+        self.prev_cols_filled = cols_filled
 
     def _clear_progress(self, canvas) -> None:
         for x in range(self.x_pos + 1, self.x_pos + self.x_len - 1):
