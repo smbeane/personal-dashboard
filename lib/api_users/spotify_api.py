@@ -7,6 +7,7 @@ from lib.spotify_secrets import CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN
 TOKEN_URL = "https://accounts.spotify.com/api/token"
 PLAYBACK_URL = "https://api.spotify.com/v1/me/player"
 
+
 class SpotifyAPI():
     def __init__(self):
         self.refresh_token = REFRESH_TOKEN
@@ -23,10 +24,10 @@ class SpotifyAPI():
         if response_status == 200:
             return response.json()
         
-        elif response_status == 204:
+        if response_status == 204:
             return "No device playing"
         
-        elif response_status == 401:
+        if response_status == 401:
             access_token = self._get_access_token()
             if "Error" in access_token:
                 return "Error: can't recieve access token"
@@ -34,11 +35,45 @@ class SpotifyAPI():
                 self.access_token = access_token
                 return self.get_playback()
             
-        else:
-            return "Error " + str(response_status)
+        return "Error " + str(response_status)
 
-    def alter_playback(self, alteration_type: str):
-        pass
+    def alter_playback(self, alteration_type: str, device: str) -> str:
+        print(f"{alteration_type} song")
+        print(device)
+        
+        url = f"{PLAYBACK_URL}/{alteration_type}?device_id={device}"
+        headers = {'Authorization': 'Bearer ' + self.access_token, 'Content-Type': 'application/json'}
+
+        if(alteration_type == 'play' or alteration_type == 'pause'):
+            response = requests.put(url=url, headers=headers)
+        else:
+            response = requests.post(url=url, headers=headers)
+
+        status = response.status_code
+
+        if status == 200 or status == 204:
+            match alteration_type:
+                case 'play':
+                    return 'Song Resumed!'
+                case 'pause':
+                    return 'Song Paused!'
+                case 'next':
+                    return 'Next Song!'
+                case 'previous':
+                    return 'Previous Song!'
+                case _:
+                    return 'Song Altered?'
+            
+        
+        if status == 401:
+            access_token = self._get_access_token()
+            if "Error" in access_token:
+                return "Error: can't recieve access token"
+            else: 
+                self.access_token = access_token
+                return self.alter_playback(alteration_type, device)
+        
+        return 'Error ' + str(status)
 
     def _get_access_token(self) -> str:
         encoded_client = self._encode_client()

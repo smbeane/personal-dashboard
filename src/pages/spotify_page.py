@@ -10,7 +10,9 @@ from lib.components.image_display import ImageDisplay
 from lib.components.progress_bar import ProgressBar
 from lib.helpers import retrieve_url_image
 
+
 REFRESH_TIME = 1
+POSSIBLE_ALTERATIONS = ["play/pause", "next", "previous"]
 WHITE = (255, 255, 255)
 BLUE = (63, 81, 181)
 
@@ -118,5 +120,8 @@ class SpotifyPage(BasePage):
         self.album_display = ImageDisplay(position=COVER_POS, dims=COVER_SIZE, image=None)
         self.progress_bar = ProgressBar(position=PROGRESS_POS, dims=PROGRESS_SIZE, border_color=WHITE, bar_color=BLUE)
 
-    def alter_playback(self, alteration: str) -> None:
-        pass
+    def alter_playback(self, alteration_type: str) -> None:
+        if alteration_type in POSSIBLE_ALTERATIONS:
+            print(self.user.alter_playback(alteration_type))
+        
+
